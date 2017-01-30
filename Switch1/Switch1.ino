@@ -1,11 +1,11 @@
-#include <RBD_Timer.h>
+п»ї#include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
 const char* ssid = "MikroTik48";
 const char* password = "microtest";
-const char *mqtt_server = "192.168.88.237"; // Имя сервера MQTT
-const int mqtt_port = 1883; // Порт для подключения к серверу MQTT
+const char *mqtt_server = "192.168.88.237"; // РРјСЏ СЃРµСЂРІРµСЂР° MQTT
+const int mqtt_port = 1883; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 
 WiFiClient wclient;
 PubSubClient client(wclient);
@@ -13,9 +13,17 @@ PubSubClient client(wclient);
 int relayPin = 2;
 int buttonPin = 0;
 
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
-bool isDebug = true;
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
+RBD::Timer debugTimer(3000); //3 sec РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РЅРµ Р·Р°Р±РёРІР°С‚СЊ СЌС„РёСЂ
+bool isDebug = false;
+
+struct ErrorInfo
+{
+	int isError;
+	String descr;
+};
+
+ErrorInfo errors[2];
 
 boolean rState1 = false;
 boolean btnPress = false;
@@ -33,7 +41,8 @@ void setup()
 
 	pinMode(relayPin, OUTPUT);
 
-	//digitalWrite(buttonPin, LOW);
+	errors[0].descr = "Wi-fi not connected";
+	errors[1].descr = "Mqtt error";
 
 	if (WifiConnect())
 		MqttConnect();
@@ -42,47 +51,36 @@ void setup()
 
 void loop()
 {
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (reconnectTimer.isExpired())
 	{
 		if (WifiConnect())
 			if (MqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				client.loop();
 			}
 			else
 			{
 				reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
 	if (isDebug && debugTimer.onRestart())
 	{
-		//считаем с gpio0 данные
-		boolean current = digitalRead(buttonPin);    // Считать состояние кнопки
+		//СЃС‡РёС‚Р°РµРј СЃ gpio0 РґР°РЅРЅС‹Рµ
+		boolean current = digitalRead(buttonPin);    // РЎС‡РёС‚Р°С‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РєРЅРѕРїРєРё
 		Serial.print("Gpio0=");
 		Serial.println(current);		
-		//digitalWrite(relayPin, current);
 	}
 
 	buttonWF();
-
-	//// часть кода для кнопки, реле и светодиода
-	//currentButton = debounce(lastButton);
-	//if (lastButton == LOW && currentButton == HIGH)   // Если нажатие (условие для реле)
-	//{
-	//	Serial.println("button pressed");
-	//	relayState = !relayState;
-	//	lastButton = currentButton;
-	//	digitalWrite(relayPin, relayState);    // Изменить статус состояния реле
-	//}
 
 
 }
@@ -96,7 +94,10 @@ bool WifiConnect()
 		WiFi.begin(ssid, password);
 
 		if (WiFi.waitForConnectResult() != WL_CONNECTED)
+		{
+			
 			return false;
+		}
 		Serial.println("WiFi connected");
 	}
 
@@ -117,7 +118,7 @@ bool MqttConnect()
 			// Once connected, publish an announcement...
 			client.publish("Start", "ESP8266Client is started");
 			// ... and resubscribe
-			client.subscribe(topicSwitch); // подписывааемся по топик с данными для светодиода
+			client.subscribe(topicSwitch); // РїРѕРґРїРёСЃС‹РІР°Р°РµРјСЃСЏ РїРѕ С‚РѕРїРёРє СЃ РґР°РЅРЅС‹РјРё РґР»СЏ СЃРІРµС‚РѕРґРёРѕРґР°
 		}
 		else 
 		{
@@ -130,7 +131,7 @@ bool MqttConnect()
 	return true;
 }
 
-// Функция получения данных от сервера
+// Р¤СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕС‚ СЃРµСЂРІРµСЂР°
 void callback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
@@ -141,28 +142,62 @@ void callback(char* topic, byte* payload, unsigned int length) {
 	Serial.println();
 
 	if ((char)payload[0] == '1') {
-		digitalWrite(relayPin, HIGH); // включаем или выключаем светодиод в зависимоти от полученных значений данных
+		digitalWrite(relayPin, HIGH); // РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј СЃРІРµС‚РѕРґРёРѕРґ РІ Р·Р°РІРёСЃРёРјРѕС‚Рё РѕС‚ РїРѕР»СѓС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР°РЅРЅС‹С…
 	}
 	else
 		digitalWrite(relayPin, LOW);
 }
 
-// button without fixing, кнопка без фиксации
+// button without fixing, РєРЅРѕРїРєР° Р±РµР· С„РёРєСЃР°С†РёРё
 void buttonWF() {
 	btnPress = digitalRead(buttonPin);
 
 	if (btnPress && !lastbtnStat) {
-		delay(30); // защита от дребезга
+		delay(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 		btnPress = digitalRead(buttonPin);
 
 		if (btnPress) {
 			rState1 = !rState1;
 			digitalWrite(relayPin, rState1);
-			// публикуем изменение состояния реле на брокер      
-			client.publish(topicSwitch, String(rState1).c_str(), true);
+			// РїСѓР±Р»РёРєСѓРµРј РёР·РјРµРЅРµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЂРµР»Рµ РЅР° Р±СЂРѕРєРµСЂ      
+			if (!client.publish(topicSwitch, String(rState1).c_str(), true))
+			{
+				errors[1].isError = 1;
+			}
 		}
 	}
 	lastbtnStat = btnPress;
+}
+
+void SendErrorToWifi()
+{
+	String s = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n<!DOCTYPE HTML><html>";
+	
+	//todo: РІС‹РЅРµСЃС‚Рё РІ СЂР°РЅС‚Р°Р№Рј Р·Р°РїРѕР»РЅРµРЅРёРµ isErr
+	bool isErr = false;
+	for (int i = 0; i < 2; i++)
+	{
+		if (errors[i].isError == 1)
+		{
+			isErr = true;
+			break;
+		}
+	}
+
+	if (!isErr)
+		s += "OK";
+	else
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			if (errors[i].isError == 1)
+			{
+				s += errors[i].descr + "<br />";				
+			}
+		}
+	}
+	
+	s += "</html>";
 }
 
 
