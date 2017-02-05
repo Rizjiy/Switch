@@ -4,18 +4,19 @@
 
 const char* ssid = "MikroTik48";
 const char* password = "microtest";
-const char *mqtt_server = "192.168.88.237"; // Имя сервера MQTT
+const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
 const int mqtt_port = 1883; // Порт для подключения к серверу MQTT
+const char* clientName = "ESP8266_Switch1";
 
 WiFiClient wclient;
-PubSubClient client(wclient);
+PubSubClient mqttclient(wclient);
 
-int relayPin = 2;
-int buttonPin = 0;
+int relayPin = 13;
+int buttonPin = 12;
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
-bool isDebug = true;
+bool debug = true;
 
 boolean rState1 = false;
 boolean btnPress = false;
@@ -28,8 +29,8 @@ void setup()
 	Serial.begin(115200);
 
 	//Mqtt setup
-	client.setServer(mqtt_server, mqtt_port);
-	client.setCallback(callback);
+	mqttclient.setServer(mqtt_server, mqtt_port);
+	mqttclient.setCallback(MqttCallback);
 
 	pinMode(relayPin, OUTPUT);
 
@@ -49,7 +50,7 @@ void loop()
 			if (MqttConnect())
 			{
 				//Все ок
-				client.loop();
+				mqttclient.loop();
 			}
 			else
 			{
@@ -63,27 +64,7 @@ void loop()
 		}
 	}
 
-	if (isDebug && debugTimer.onRestart())
-	{
-		//считаем с gpio0 данные
-		boolean current = digitalRead(buttonPin);    // Считать состояние кнопки
-		Serial.print("Gpio0=");
-		Serial.println(current);		
-		//digitalWrite(relayPin, current);
-	}
-
-	buttonWF();
-
-	//// часть кода для кнопки, реле и светодиода
-	//currentButton = debounce(lastButton);
-	//if (lastButton == LOW && currentButton == HIGH)   // Если нажатие (условие для реле)
-	//{
-	//	Serial.println("button pressed");
-	//	relayState = !relayState;
-	//	lastButton = currentButton;
-	//	digitalWrite(relayPin, relayState);    // Изменить статус состояния реле
-	//}
-
+	ButtonWf();
 
 }
 
@@ -106,23 +87,23 @@ bool WifiConnect()
 bool MqttConnect()
 {
 	// Loop until we're reconnected
-	if (!client.connected()) 
+	if (!mqttclient.connected())
 	{
 		Serial.print("Attempting MQTT connection...");
 		// Attempt to connect
 		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
-		if (client.connect("ESP8266Client")) 
+		if (mqttclient.connect(clientName))
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			client.publish("Start", "ESP8266Client is started");
+			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			client.subscribe(topicSwitch); // подписывааемся по топик с данными для светодиода
+			mqttclient.subscribe(topicSwitch); // подписывааемся по топик с данными для светодиода
 		}
 		else 
 		{
 			Serial.print("failed, rc=");
-			Serial.println(client.state());
+			Serial.println(mqttclient.state());
 			return false;
 		}
 	}
@@ -131,7 +112,7 @@ bool MqttConnect()
 }
 
 // Функция получения данных от сервера
-void callback(char* topic, byte* payload, unsigned int length) {
+void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
@@ -140,30 +121,56 @@ void callback(char* topic, byte* payload, unsigned int length) {
 	}
 	Serial.println();
 
-	if ((char)payload[0] == '1') {
-		digitalWrite(relayPin, HIGH); // включаем или выключаем светодиод в зависимоти от полученных значений данных
-	}
+	// включаем или выключаем реле в зависимоти от полученных значений данных
+	bool val = false;
+	if (payload[0] == '1')
+		val = true;
 	else
-		digitalWrite(relayPin, LOW);
+		val = false;
+
+	OnBtnPress(val);
 }
 
 // button without fixing, кнопка без фиксации
-void buttonWF() {
+void ButtonWf() {
 	btnPress = digitalRead(buttonPin);
+
+	if (debug && debugTimer.onRestart())
+	{
+		Serial.print("btnPress=");
+		Serial.println(btnPress);
+		Serial.print("rState1=");
+		Serial.println(rState1);
+	}
 
 	if (btnPress && !lastbtnStat) {
 		delay(30); // защита от дребезга
 		btnPress = digitalRead(buttonPin);
 
 		if (btnPress) {
-			rState1 = !rState1;
-			digitalWrite(relayPin, rState1);
+			OnBtnPress(!rState1);
 			// публикуем изменение состояния реле на брокер      
-			client.publish(topicSwitch, String(rState1).c_str(), true);
+			mqttclient.publish(topicSwitch, String(rState1).c_str(), true);
 		}
 	}
 	lastbtnStat = btnPress;
 }
+
+void OnBtnPress(bool state)
+{
+	if (debug)
+	{
+		Serial.print("OnBtnPress(");
+		Serial.print(state);
+		Serial.println(")");
+	}
+
+	digitalWrite(relayPin, state);
+	//меняем текущее состояние
+	rState1 = state;
+}
+
+
 
 
 
