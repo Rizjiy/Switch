@@ -6,7 +6,7 @@ const char* ssid = "MikroTik48";
 const char* password = "***";
 const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
 const int mqtt_port = 1883; // ѕорт дл€ подключени€ к серверу MQTT
-const char* clientName = "ESP8266_Switch1";
+const char* clientName = "switch1";
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
@@ -22,7 +22,7 @@ boolean rState1 = false;
 boolean btnPress = false;
 boolean lastbtnStat = false;
 
-const char *topicSwitch = "home/light1";
+const char *topicSwitch = "home/switches/1";
 
 void setup()
 {
@@ -148,9 +148,9 @@ void ButtonWf() {
 		btnPress = digitalRead(buttonPin);
 
 		if (btnPress) {
-			OnBtnPress(!rState1);
 			// публикуем изменение состо€ни€ реле на брокер      
-			mqttclient.publish(topicSwitch, String(rState1).c_str(), false);
+			if(!mqttclient.publish(topicSwitch, String(!rState1).c_str(), false))
+				OnBtnPress(!rState1);
 		}
 	}
 	lastbtnStat = btnPress;
