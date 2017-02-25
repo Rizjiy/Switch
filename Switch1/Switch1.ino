@@ -2,17 +2,17 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "MikroTik48";
-const char* password = "***";
-const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
+const char* ssid = "RT39";// "MikroTik48";
+const char* password = "***";// 
+const char *mqtt_server = "192.168.0.24";//"192.168.88.3"; // адрес сервера MQTT
 const int mqtt_port = 1883; // ѕорт дл€ подключени€ к серверу MQTT
 const char* clientName = "switch1";
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
-int relayPin = 13;
-int buttonPin = 12;
+int relayPin = 2;//13;
+int buttonPin = 0;//12;
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 RBD::Timer debugTimer(3000); //3 sec дл€ того, чтобы не забивать эфир
@@ -23,6 +23,7 @@ boolean btnPress = false;
 boolean lastbtnStat = false;
 
 const char *topicSwitch = "home/switches/1";
+const char *topicSwitchState = "home/switches/1/status";
 
 void setup()
 {
@@ -99,6 +100,8 @@ bool MqttConnect()
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
 			mqttclient.subscribe(topicSwitch); // подписывааемс€ по топик с данными дл€ светодиода
+			mqttclient.subscribe(topicSwitchState); // подписывааемс€ по топик со статусом
+
 		}
 		else 
 		{
@@ -121,14 +124,25 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 	Serial.println();
 
-	// включаем или выключаем реле в зависимоти от полученных значений данных
 	bool val = false;
 	if (payload[0] == '1')
 		val = true;
 	else
 		val = false;
 
-	OnBtnPress(val);
+	//топик - это обновление статуса
+	if (strcmp(topic, topicSwitch) == 0)
+	{
+		// включаем или выключаем реле в зависимоти от полученных значений данных
+		OnBtnPress(val);
+		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
+	}
+	else if (strcmp(topic, topicSwitchState) == 0)
+	{
+		if (val != rState1)
+			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
+
+	}
 }
 
 // button without fixing, кнопка без фиксации
@@ -147,10 +161,10 @@ void ButtonWf() {
 		delay(30); // защита от дребезга
 		btnPress = digitalRead(buttonPin);
 
-		if (btnPress) {
-			// публикуем изменение состо€ни€ реле на брокер      
-			if(!mqttclient.publish(topicSwitch, String(!rState1).c_str(), false))
-				OnBtnPress(!rState1);
+		if (btnPress) {  
+			OnBtnPress(!rState1);
+			// публикуем изменение состо€ни€ реле на брокер (возвратное)   
+			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 		}
 	}
 	lastbtnStat = btnPress;
