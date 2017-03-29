@@ -2,21 +2,23 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "RT39";// "MikroTik48";
+const char* ssid = "MikroTik48";
 const char* password = "***";// 
-const char *mqtt_server = "192.168.0.24";//"192.168.88.3"; // адрес сервера MQTT
+const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
 const int mqtt_port = 1883; // Порт для подключения к серверу MQTT
 const char* clientName = "switch1";
+const char* mqttUser = "mqtt";
+const char* mqttPass = "***";
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
-int relayPin = 2;//13;
-int buttonPin = 0;//12;
+int relayPin = 13;
+int buttonPin = 12;
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
-bool debug = true;
+bool debug = false;
 
 boolean rState1 = false;
 boolean btnPress = false;
@@ -93,14 +95,14 @@ bool MqttConnect()
 		Serial.print("Attempting MQTT connection...");
 		// Attempt to connect
 		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
-		if (mqttclient.connect(clientName))
+		if (mqttclient.connect(clientName, mqttUser, mqttPass))
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			mqttclient.subscribe(topicSwitch); // подписывааемся по топик с данными для светодиода
-			mqttclient.subscribe(topicSwitchState); // подписывааемся по топик со статусом
+			mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
+			mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
 
 		}
 		else 
@@ -130,7 +132,6 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	else
 		val = false;
 
-	//топик - это обновление статуса
 	if (strcmp(topic, topicSwitch) == 0)
 	{
 		// включаем или выключаем реле в зависимоти от полученных значений данных
@@ -139,6 +140,7 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 	else if (strcmp(topic, topicSwitchState) == 0)
 	{
+		//обновляем статус других устройств, фактияеским состоянием выключателя
 		if (val != rState1)
 			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 
