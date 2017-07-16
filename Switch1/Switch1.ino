@@ -3,12 +3,12 @@
 #include <PubSubClient.h>
 
 const char* ssid = "MikroTik48";
-const char* password = "***";// 
+const char* password = "";// 
 const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
 const int mqtt_port = 1883; // Порт для подключения к серверу MQTT
 const char* clientName = "switch1";
 const char* mqttUser = "mqtt";
-const char* mqttPass = "***";
+const char* mqttPass = "";
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
