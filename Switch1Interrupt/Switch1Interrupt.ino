@@ -6,21 +6,26 @@ const char* ssid = "MikroTik48";
 const char* password = "";// 
 const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
 const int mqtt_port = 1883; // ѕорт дл€ подключени€ к серверу MQTT
-const char* clientName = "switch1";
+const char* clientName = "switch2";
 const char* mqttUser = "mqtt";
 const char* mqttPass = "";
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
-int relayPin = 13;
-int buttonPin = 12;
+#define relayPin 13
+#define buttonPin 12
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 RBD::Timer debugTimer(3000); //3 sec дл€ того, чтобы не забивать эфир
-bool debug = false;
+RBD::Timer lockTimer(30); // защита от дребезга
+bool debug = true;
 
-boolean rState1 = false;
+volatile bool lock = false;
+volatile boolean rState1 = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
+volatile boolean flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать сообщение на брокер после того
+									 // как контроллер выйдет из режима подключени€ к сети, или из прерывани€
+
 boolean btnPress = false;
 boolean lastbtnStat = false;
 
@@ -36,6 +41,8 @@ void setup()
 	mqttclient.setCallback(MqttCallback);
 
 	pinMode(relayPin, OUTPUT);
+
+	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, RISING);
 
 	//digitalWrite(buttonPin, LOW);
 
@@ -67,7 +74,13 @@ void loop()
 		}
 	}
 
-	ButtonWf();
+	// ≈сли запущен флаг, то публикуем сообщение на брокер
+	if (flagChange) {
+		mqttclient.publish(topicSwitch, String(rState1).c_str(), true);
+		flagChange = false;
+	}
+
+	//ButtonWf();
 
 }
 
@@ -105,7 +118,7 @@ bool MqttConnect()
 			mqttclient.subscribe(topicSwitchState); // подписываемс€ на топик со статусом
 
 		}
-		else 
+		else
 		{
 			Serial.print("failed, rc=");
 			Serial.println(mqttclient.state());
@@ -147,6 +160,27 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 }
 
+// ‘ункци€, вызываема€ прерыванием, дл€ кнопки без фиксации (button without fixing)
+void Interrupt_WF() {
+
+	//«ащита от дребезга 
+	if (lock || !lockTimer.isExpired())
+		return;
+	lock = true;
+	lockTimer.restart();
+	while(!lockTimer.isExpired())
+	{ }
+
+	if (digitalRead(buttonPin))
+	{
+		OnBtnPress(!rState1);
+		flagChange = true;
+	}
+
+	lockTimer.restart(); // защищаемс€ от э/м скачков в реле
+	lock = false;
+}
+
 // button without fixing, кнопка без фиксации
 void ButtonWf() {
 	btnPress = digitalRead(buttonPin);
@@ -163,7 +197,7 @@ void ButtonWf() {
 		delay(30); // защита от дребезга
 		btnPress = digitalRead(buttonPin);
 
-		if (btnPress) {  
+		if (btnPress) {
 			OnBtnPress(!rState1);
 			// публикуем изменение состо€ни€ реле на брокер (возвратное)   
 			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
@@ -174,9 +208,12 @@ void ButtonWf() {
 
 void OnBtnPress(bool state)
 {
-	Serial.print("OnBtnPress(");
-	Serial.print(state);
-	Serial.println(")");
+	if (debug)
+	{
+		Serial.print("OnBtnPress(");
+		Serial.print(state);
+		Serial.println(")");
+	}
 
 	digitalWrite(relayPin, state);
 	//мен€ем текущее состо€ние
