@@ -17,8 +17,9 @@ PubSubClient mqttclient(wclient);
 #define buttonPin 12
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
+//RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
 RBD::Timer lockTimer(30); // защита от дребезга
+RBD::Timer lockTimer2(90); // защита от дребезга
 bool debug = true;
 
 volatile bool lock = false;
@@ -164,7 +165,7 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 void Interrupt_WF() {
 
 	//Защита от дребезга 
-	if (lock || !lockTimer.isExpired())
+	if (lock || !lockTimer2.isExpired())
 		return;
 	lock = true;
 	lockTimer.restart();
@@ -177,33 +178,8 @@ void Interrupt_WF() {
 		flagChange = true;
 	}
 
-	lockTimer.restart(); // защищаемся от э/м скачков в реле
+	lockTimer2 .restart(); // защищаемся от э/м скачков в реле
 	lock = false;
-}
-
-// button without fixing, кнопка без фиксации
-void ButtonWf() {
-	btnPress = digitalRead(buttonPin);
-
-	if (debug && debugTimer.onRestart())
-	{
-		Serial.print("btnPress=");
-		Serial.println(btnPress);
-		Serial.print("rState1=");
-		Serial.println(rState1);
-	}
-
-	if (btnPress && !lastbtnStat) {
-		delay(30); // защита от дребезга
-		btnPress = digitalRead(buttonPin);
-
-		if (btnPress) {
-			OnBtnPress(!rState1);
-			// публикуем изменение состояния реле на брокер (возвратное)   
-			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
-		}
-	}
-	lastbtnStat = btnPress;
 }
 
 void OnBtnPress(bool state)
