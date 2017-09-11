@@ -1,14 +1,20 @@
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <Secret.h>
 
-const char* ssid = "MikroTik48";
-const char* password = "";// 
-const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
-const int mqtt_port = 1883; // Порт для подключения к серверу MQTT
-const char* clientName = "switch2";
-const char* mqttUser = "mqtt";
-const char* mqttPass = "";
+
+const char* ssid = WI_FI_SSID;
+const char* password = WI_FI_PASSWORD;
+const char *mqtt_server = MQTT_SERVER;
+const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const char* mqttUser = MQTT_USER;
+const char* mqttPass = MQTT_PASSWORD;
+
+const char* clientName = "switch1";
+const char *topicSwitch = "home/switches/1";
+const char *topicSwitchState = "home/switches/1/status";
+
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
@@ -29,9 +35,6 @@ volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать 
 
 boolean btnPress = false;
 boolean lastbtnStat = false;
-
-const char *topicSwitch = "home/switches/1";
-const char *topicSwitchState = "home/switches/1/status";
 
 void setup()
 {
