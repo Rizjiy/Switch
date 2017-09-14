@@ -11,16 +11,15 @@ const int mqtt_port = MQTT_PORT; // ѕорт дл€ подключени€ к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const char* clientName = "switch1";
-const char *topicSwitch = "home/switches/1";
-const char *topicSwitchState = "home/switches/1/status";
+const char* clientName = "switch2";
+const char *topicSwitch = "home/switches/2";
+const char *topicSwitchState = "home/switches/2/status";
 
+const int relayPin = 13;
+const int buttonPin = 12;
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
-
-#define relayPin 13
-#define buttonPin 12
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 //RBD::Timer debugTimer(3000); //3 sec дл€ того, чтобы не забивать эфир
@@ -31,7 +30,6 @@ bool debug = true;
 volatile bool lock = false;
 volatile boolean rState1 = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
 volatile boolean flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать сообщение на брокер после того
-									 // как контроллер выйдет из режима подключени€ к сети, или из прерывани€
 
 boolean btnPress = false;
 boolean lastbtnStat = false;
