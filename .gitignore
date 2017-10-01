@@ -236,6 +236,7 @@ _Pvt_Extensions
 .fake/
 
 #vMicro
-*.filters
-*.vcxproj
-__vm
+**/*.filters
+**/*.vcxproj
+__vm/
+
