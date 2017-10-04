@@ -19,6 +19,9 @@ const char* mqttPass = MQTT_PASSWORD;
 const char* clientName = "switch3";
 const char *topicSwitch = "home/switches/3";
 const char *topicSwitchState = "home/switches/3/status";
+const char *topicDim = "home/switches/3/dim";
+const char *topicDimState = "home/switches/3/dim/status";
+
 
 //const int relayPin = 13;
 const int buttonPin = 5;
@@ -95,7 +98,7 @@ void loop()
 		}
 	}
 
-	// Если запущен флаг, то публикуем сообщение на брокер
+	// Если запущен флаг, то публикуем состояние на брокер
 	if (flagChange) {
 		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 		flagChange = false;
@@ -166,9 +169,10 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	else
 		val = false;
 
+	//Обработка реле
 	if (strcmp(topic, topicSwitch) == 0)
 	{
-		// включаем или выключаем реле в зависимоти от полученных значений данных
+		// включаем или выключаем реле в зависимоcти от полученных значений данных
 		OnBtnPress(val);
 		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 	}
@@ -177,8 +181,22 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 		//обновляем статус других устройств, фактияеским состоянием выключателя
 		if (val != rState1)
 			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
-
 	}
+	
+	//Обработка диммера
+	else if (strcmp(topic, topicDim) == 0)
+	{
+		// Диммируем реле исходя из переданных процентов
+		//OnBtnPress(val);
+		//mqttclient.publish(topicDimState, String(rState1).c_str(), true);
+	}
+	else if (strcmp(topic, topicDimState) == 0)
+	{
+		//обновляем статус других устройств, фактияеским состоянием выключателя
+		//if (val != rState1)
+			//mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
+	}
+
 }
 
 // Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)

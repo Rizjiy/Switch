@@ -76,7 +76,7 @@ void loop()
 		}
 	}
 
-	// Если запущен флаг, то публикуем сообщение на брокер
+	// Если запущен флаг, то публикуем состояние на брокер
 	if (flagChange) {
 		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 		flagChange = false;
