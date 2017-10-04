@@ -21,7 +21,7 @@ const char *topicSwitch = "home/switches/3";
 const char *topicSwitchState = "home/switches/3/status";
 
 //const int relayPin = 13;
-const int buttonPin = 12;
+const int buttonPin = 5;
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
@@ -97,7 +97,7 @@ void loop()
 
 	// Если запущен флаг, то публикуем сообщение на брокер
 	if (flagChange) {
-		mqttclient.publish(topicSwitch, String(rState1).c_str(), true);
+		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 		flagChange = false;
 	}
 
@@ -219,7 +219,7 @@ void OnBtnPress(bool state)
 
 	//Отправляем по трубе текущее состояние
 	//data
-	radio.write(&power, sizeof(uint8_t));
+	radio.write(&power, sizeof(uint8_t), 0);
 
 	//digitalWrite(relayPin, state);
 	rState1 = state;
