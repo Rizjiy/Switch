@@ -1,6 +1,9 @@
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <SPI.h>
+#include <nRF24L01.h>                                     // Подключаем файл настроек из библиотеки RF24
+#include <RF24.h>                                         // Подключаем библиотеку для работы с nRF24L01+
 #include <Secret.h>
 
 
@@ -15,18 +18,20 @@ const char* clientName = "switch3";
 const char *topicSwitch = "home/switches/3";
 const char *topicSwitchState = "home/switches/3/status";
 
-const int relayPin = 13;
+//const int relayPin = 13;
 const int buttonPin = 12;
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
+RF24           radio(4, 15);                              // Создаём объект radio для работы с библиотекой RF24, указывая номера выводов nRF24L01+ (CE, CSN)
+
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-								  //RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
 RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 bool debug = true;
 
+int            data[1];                                   // Создаём массив для передачи данных
 volatile bool lock = false;
 volatile boolean rState1 = false; // В прерываниях всегда используем тип volatile для изменяемых переменных
 volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
@@ -38,11 +43,23 @@ void setup()
 {
 	Serial.begin(115200);
 
+	//настройки nRF24
+	SPI.setHwCs(true);
+	SPI.begin();
+	SPI.setDataMode(SPI_MODE0);
+	SPI.setBitOrder(MSBFIRST);
+	radio.begin();                                        // Инициируем работу nRF24L01+
+	radio.setChannel(5);                                  // Указываем канал передачи данных (от 0 до 127), 5 - значит передача данных осуществляется на частоте 2,405 ГГц (на одном канале может быть только 1 приёмник и до 6 передатчиков)
+	radio.setDataRate(RF24_1MBPS);                   // Указываем скорость передачи данных (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS), RF24_1MBPS - 1Мбит/сек
+	radio.setPALevel(RF24_PA_HIGH);                 // Указываем мощность передатчика (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
+	radio.openWritingPipe(0x1234567890LL);               // Открываем трубу с идентификатором 0x1234567890 для передачи данных (на ожном канале может быть открыто до 6 разных труб, которые должны отличаться только последним байтом идентификатора)
+	//
+
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
 	mqttclient.setCallback(MqttCallback);
 
-	pinMode(relayPin, OUTPUT);
+//	pinMode(relayPin, OUTPUT);
 
 	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, RISING);
 
@@ -192,11 +209,20 @@ void OnBtnPress(bool state)
 		Serial.print(state);
 		Serial.println(")");
 	}
+	
+	uint8_t power = 0;
+	if (state)
+		power = 255;
 
-	digitalWrite(relayPin, state);
-	//меняем текущее состояние
+
+	//Отправляем по трубе текущее состояние
+	//data
+	radio.write(&power, sizeof(uint8_t));
+
+	//digitalWrite(relayPin, state);
 	rState1 = state;
 }
+
 
 
 
