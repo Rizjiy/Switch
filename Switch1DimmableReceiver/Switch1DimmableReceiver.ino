@@ -1,3 +1,5 @@
+//for Arduino Pro or Pro Mini w/ ATmega328
+
 #include <SPI.h>                                          // Подключаем библиотеку  для работы с шиной SPI
 #include <nRF24L01.h>                                     // Подключаем файл настроек из библиотеки RF24
 #include <RF24.h>                                         // Подключаем библиотеку  для работы с nRF24L01+
