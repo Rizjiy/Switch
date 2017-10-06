@@ -31,14 +31,30 @@ void setup() {
 void loop() {
 	if (radio.available()) {                                // Если в буфере имеются принятые данные
 		
+		int mode;
+		radio.read(&mode, sizeof(int));
+
 		uint8_t power;
 		radio.read(&power, sizeof(uint8_t));
 
 		Serial.print("Receive: ");
 		Serial.println(power);
 
-		ChangePower(power);
+		switch (mode)
+		{
+		case 1:
+			break;
+		case 2:
+			ChangePower(power);
+			break;
+		}
 	}
+}
+
+void SwitchPower(bool value)
+{
+	//меняем текущее состояние
+	analogWrite(led, brightness);
 }
 
 void ChangePower(int brightness)

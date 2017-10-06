@@ -187,8 +187,8 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	else if (strcmp(topic, topicDim) == 0)
 	{
 		// ƒиммируем реле исход€ из переданных процентов
-		//OnBtnPress(val);
-		//mqttclient.publish(topicDimState, String(rState1).c_str(), true);
+		OnBtnDimm(payload);
+		mqttclient.publish(topicDimState, payload, true);
 	}
 	else if (strcmp(topic, topicDimState) == 0)
 	{
@@ -230,19 +230,36 @@ void OnBtnPress(bool state)
 		Serial.println(")");
 	}
 	
-	uint8_t power = 0;
-	if (state)
-		power = 255;
+	//uint8_t power = 0;
+	//if (state)
+	//	power = 255;
 
+	//—ообщаем, что это сигнал переключател€
+	radio.write(1, sizeof(int), 0);
 
 	//ќтправл€ем по трубе текущее состо€ние
-	//data
-	radio.write(&power, sizeof(uint8_t), 0);
+	radio.write(state, sizeof(bool), 0);
 
 	//digitalWrite(relayPin, state);
 	rState1 = state;
 }
 
+void OnBtnDimm(byte* power)
+{
+	if (debug)
+	{
+		Serial.print("OnBtnDimm(");
+		Serial.print(power);
+		Serial.println(")");
+	}
+
+	//сообщаем что это €ркость
+	radio.write(2, sizeof(int), 0);
+
+	//ќтправл€ем по трубе значение €ркости в %
+	radio.write(&power, sizeof(&power), 0);
+
+}
 
 
 
