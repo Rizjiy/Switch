@@ -15,14 +15,14 @@ const char* clientName = "switch3";
 const char *topicSwitch = "home/switches/3";
 const char *topicSwitchState = "home/switches/3/status";
 
-const int relayPin = 13;
 const int buttonPin = 12;
+const int relayPin = 13;
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-//RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
+RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
 RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 bool debug = true;
@@ -32,7 +32,7 @@ volatile boolean rState1 = false; // В прерываниях всегда используем тип volatil
 volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
 
 boolean btnPress = false;
-boolean lastbtnStat = false;
+boolean levelTrigger = LOW;
 
 void setup()
 {
@@ -43,10 +43,10 @@ void setup()
 	mqttclient.setCallback(MqttCallback);
 
 	pinMode(relayPin, OUTPUT);
+	//Начальное значение реле
+	RelaySwitch(levelTrigger);
 
-	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, RISING);
-
-	//digitalWrite(buttonPin, LOW);
+	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, FALLING);
 
 	if (WifiConnect())
 		MqttConnect();
@@ -83,6 +83,13 @@ void loop()
 	}
 
 	//ButtonWf();
+
+	//if (debug && debugTimer.onRestart())
+	//{
+	//	Serial.print("btnPress=");
+	//	Serial.println(digitalRead(buttonPin));
+	//}
+
 
 }
 
@@ -171,15 +178,15 @@ void Interrupt_WF() {
 	lock = true;
 	lockTimer.restart();
 	while(!lockTimer.isExpired())
-	{ }
+	{}
 
-	if (digitalRead(buttonPin))
+	if (digitalRead(buttonPin) == levelTrigger)
 	{
 		OnBtnPress(!rState1);
 		flagChange = true;
 	}
 
-	lockTimer2 .restart(); // защищаемся от э/м скачков в реле
+	lockTimer2.restart(); // защищаемся от э/м скачков в реле
 	lock = false;
 }
 
@@ -192,9 +199,19 @@ void OnBtnPress(bool state)
 		Serial.println(")");
 	}
 
-	digitalWrite(relayPin, state);
+	RelaySwitch(state);
+
 	//меняем текущее состояние
 	rState1 = state;
+}
+
+//Щелкаем реле
+void RelaySwitch(bool state)
+{
+	if(levelTrigger)
+		digitalWrite(relayPin, state);
+	else
+		digitalWrite(relayPin, !state);
 }
 
 

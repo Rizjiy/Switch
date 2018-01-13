@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1", "Switch1\Switch1.vcxproj", "{A6E667B9-D639-44C5-9204-8C6313C606D4}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableSender", "Switch1DimmableSender\Switch1DimmableSender.vcxproj", "{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableReceiver", "Switch1DimmableReceiver\Switch1DimmableReceiver.vcxproj", "{7202DE19-D80C-4A56-936C-9C39644620CA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FanControl", "FanControl\FanControl.vcxproj", "{0727F7AA-6508-4573-91D2-FF7474D3B18A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +35,15 @@ Global
 		{7202DE19-D80C-4A56-936C-9C39644620CA}.Debug|x86.Build.0 = Debug|Win32
 		{7202DE19-D80C-4A56-936C-9C39644620CA}.Release|x86.ActiveCfg = Release|Win32
 		{7202DE19-D80C-4A56-936C-9C39644620CA}.Release|x86.Build.0 = Release|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.ActiveCfg = Debug|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.Build.0 = Debug|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.ActiveCfg = Release|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {468C05DC-5AC8-4B78-975B-2222D3CC8AE4}
 	EndGlobalSection
 EndGlobal
