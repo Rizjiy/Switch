@@ -12,14 +12,14 @@ const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
 const char* clientName = "fan";
-const char *topicSwitch = "home/fans/1";
-const char *topicSwitchState = "home/fans/1/status";
+//const char *topicSwitch = "home/fans/1";
+//const char *topicSwitchState = "home/fans/1/status";
 
-const int dhtPin0 = 4;
-const int dhtPin1 = 5;
-const int dhtPin2 = 15;
-
-const int relayPin1 = 13; //for fun1
+const int dhtPin0 = 5;
+//const int dhtPin1 = 5;
+//const int dhtPin2 = 15;
+//
+//const int relayPin1 = 13; //for fun1
 
 const float deltaHmax = 20; //% влажности
 const float deltaHmin = 5; //% влажности
@@ -33,7 +33,7 @@ bool debug = true;
 
 // Инициируем датчик
 DHT dht0(dhtPin0, DHT22);
-DHT dht1(dhtPin1, DHT22);
+//DHT dht1(dhtPin1, DHT22);
 //DHT dht3(dhtPin2, DHT22);
 
 void setup() 
@@ -43,7 +43,7 @@ void setup()
 
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
-	mqttclient.setCallback(MqttCallback);
+	//mqttclient.setCallback(MqttCallback);
 
 	if (WifiConnect())
 		MqttConnect();
@@ -73,40 +73,43 @@ void loop()
 		}
 	}
 
-	// Задержка 2 секунды между измерениями
-	delay(2000);
+	// Задержка между измерениями
+	delay(5000);
 
 	//Считываем влажность
 	float h0 = dht0.readHumidity();
-	float h1 = dht1.readHumidity();
+	//float h1 = dht1.readHumidity();
 	
-	// Проверка удачно прошло ли считывание.
-	if (!isnan(h0) && !isnan(h1))
-	{
-		//для включения реле нужно, чтобы разница была больше заданной
-		if (h1 - h0 >= deltaHmax)
-		{
+	//// Проверка удачно прошло ли считывание.
+	//if (!isnan(h0) && !isnan(h1))
+	//{
+	//	//для включения реле нужно, чтобы разница была больше заданной
+	//	if (h1 - h0 >= deltaHmax)
+	//	{
 
-		}
+	//	}
 
-		//для выключения реле нужно, чтобы разница была меньше заданной
-		if (h1 - h0 <= deltaHmin)
-		{
+	//	//для выключения реле нужно, чтобы разница была меньше заданной
+	//	if (h1 - h0 <= deltaHmin)
+	//	{
 
-		}
-	}
+	//	}
+	//}
 
 
 	// Считываем температуру
-	float t = dht0.readTemperature();
+	float t0 = dht0.readTemperature();
+
+	mqttclient.publish("home/holl/temperature", String(t0).c_str(), false);
+	mqttclient.publish("home/holl/humidity", String(h0).c_str(), false);
 
 
 	if (debug)
 	{
 		Serial.print("Влажность: ");
-		Serial.print(h);
+		Serial.print(h0);
 		Serial.print(" %\t Температура: ");
-		Serial.print(t);
+		Serial.print(t0);
 		Serial.print(" *C ");
 		Serial.println();
 	}
@@ -142,8 +145,8 @@ bool MqttConnect()
 			// Once connected, publish an announcement...
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
-			mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
+			//mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
+			//mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
 
 		}
 		else
@@ -157,35 +160,5 @@ bool MqttConnect()
 	return true;
 }
 
-// Функция получения данных от сервера
-void MqttCallback(char* topic, byte* payload, unsigned int length) {
-	Serial.print("MQTT message arrived [");
-	Serial.print(topic);
-	Serial.print("] ");
-	for (int i = 0; i < length; i++) {
-		Serial.print((char)payload[i]);
-	}
-	Serial.println();
-
-	bool val = false;
-	if (payload[0] == '1')
-		val = true;
-	else
-		val = false;
-
-	if (strcmp(topic, topicSwitch) == 0)
-	{
-		// включаем или выключаем реле в зависимоти от полученных значений данных
-		//OnBtnPress(val);
-		//mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
-	}
-	else if (strcmp(topic, topicSwitchState) == 0)
-	{
-		//обновляем статус других устройств, фактияеским состоянием выключателя
-		//if (val != rState1)
-		//	mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
-
-	}
-}
 
 

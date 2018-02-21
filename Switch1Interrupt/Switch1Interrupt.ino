@@ -18,6 +18,9 @@ const char *topicSwitchState = "home/switches/3/status";
 const int buttonPin = 12;
 const int relayPin = 13;
 
+boolean levelTrigger = HIGH;
+boolean levelButton = HIGH;
+
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
@@ -28,11 +31,8 @@ RBD::Timer lockTimer2(90); // защита от дребезга
 bool debug = true;
 
 volatile bool lock = false;
-volatile boolean rState1 = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
+volatile boolean rState = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
 volatile boolean flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать сообщение на брокер после того
-
-boolean btnPress = false;
-boolean levelTrigger = LOW;
 
 void setup()
 {
@@ -44,9 +44,9 @@ void setup()
 
 	pinMode(relayPin, OUTPUT);
 	//Ќачальное значение реле
-	RelaySwitch(levelTrigger);
+	RelaySwitch(!levelTrigger);
 
-	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, FALLING);
+	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
 
 	if (WifiConnect())
 		MqttConnect();
@@ -78,7 +78,7 @@ void loop()
 
 	// ≈сли запущен флаг, то публикуем состо€ние на брокер
 	if (flagChange) {
-		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
+		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
 		flagChange = false;
 	}
 
@@ -158,13 +158,13 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	{
 		// включаем или выключаем реле в зависимоти от полученных значений данных
 		OnBtnPress(val);
-		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
+		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
 	}
 	else if (strcmp(topic, topicSwitchState) == 0)
 	{
-		//обновл€ем статус других устройств, факти€еским состо€нием выключател€
-		if (val != rState1)
-			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
+		//обновл€ем статус других устройств, фактическим состо€нием выключател€
+		if (val != rState)
+			mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
 
 	}
 }
@@ -180,9 +180,9 @@ void Interrupt_WF() {
 	while(!lockTimer.isExpired())
 	{}
 
-	if (digitalRead(buttonPin) == levelTrigger)
+	if (digitalRead(buttonPin) != levelButton)
 	{
-		OnBtnPress(!rState1);
+		OnBtnPress(!rState);
 		flagChange = true;
 	}
 
@@ -202,7 +202,7 @@ void OnBtnPress(bool state)
 	RelaySwitch(state);
 
 	//мен€ем текущее состо€ние
-	rState1 = state;
+	rState = state;
 }
 
 //ўелкаем реле
