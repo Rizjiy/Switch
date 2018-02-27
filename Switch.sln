@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableReceiver", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FanControl", "FanControl\FanControl.vcxproj", "{0727F7AA-6508-4573-91D2-FF7474D3B18A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DhtSensor", "DhtSensor\DhtSensor.vcxproj", "{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -39,6 +41,10 @@ Global
 		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.Build.0 = Debug|Win32
 		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.ActiveCfg = Release|Win32
 		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.Build.0 = Release|Win32
+		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Debug|x86.ActiveCfg = Debug|Win32
+		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Debug|x86.Build.0 = Debug|Win32
+		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Release|x86.ActiveCfg = Release|Win32
+		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

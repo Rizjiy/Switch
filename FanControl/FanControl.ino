@@ -136,7 +136,9 @@ bool MqttConnect()
 	// Loop until we're reconnected
 	if (!mqttclient.connected())
 	{
-		Serial.print("Attempting MQTT connection...");
+		Serial.print("Attempting MQTT connection to ");
+		Serial.print(mqtt_server);
+		Serial.println("...");
 		// Attempt to connect
 		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
 		if (mqttclient.connect(clientName, mqttUser, mqttPass))
