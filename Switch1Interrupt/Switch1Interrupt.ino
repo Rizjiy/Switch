@@ -11,15 +11,15 @@ const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const char* clientName = "switch3";
-const char *topicSwitch = "home/switches/3";
-const char *topicSwitchState = "home/switches/3/status";
+const char* clientName = "switch4";
+const char *topicSwitch = "home/switches/4";
+const char *topicSwitchState = "home/switches/4/status";
 
 const int buttonPin = 12;
 const int relayPin = 13;
 
 boolean levelTrigger = HIGH;
-boolean levelButton = HIGH;
+boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
@@ -215,8 +215,6 @@ void RelaySwitch(bool state)
 	else
 		digitalWrite(relayPin, !state);
 }
-
-
 
 
 
