@@ -38,13 +38,14 @@ void setup()
 {
 	Serial.begin(115200);
 
+	//Начальное значение реле
+	RelaySwitch(false);
+
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
 	mqttclient.setCallback(MqttCallback);
 
 	pinMode(relayPin, OUTPUT);
-	//Начальное значение реле
-	RelaySwitch(!levelTrigger);
 
 	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
 
@@ -81,15 +82,6 @@ void loop()
 		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
 		flagChange = false;
 	}
-
-	//ButtonWf();
-
-	//if (debug && debugTimer.onRestart())
-	//{
-	//	Serial.print("btnPress=");
-	//	Serial.println(digitalRead(buttonPin));
-	//}
-
 
 }
 

@@ -4,7 +4,7 @@
 #include <Secret.h>
 #include <ArduinoOTA.h>
 
-
+//***Блок переменных
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
@@ -16,10 +16,10 @@ const char* clientName = "switch5";
 const char *topicSwitch = "home/switches/5";
 const char *topicSwitchState = "home/switches/5/status";
 
-const int buttonPin = 12;
+const int buttonPin = -1; //-1 - нет физической кнопки
 const int relayPin = 13;
 
-boolean levelTrigger = HIGH;
+boolean levelTrigger = LOW;
 boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
 WiFiClient wclient;
@@ -29,6 +29,8 @@ RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
 RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
+//**
+
 bool debug = true;
 
 volatile bool lock = false;
@@ -39,15 +41,17 @@ void setup()
 {
 	Serial.begin(115200);
 
+	//Начальное значение реле
+	RelaySwitch(false);
+
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
 	mqttclient.setCallback(MqttCallback);
 
 	pinMode(relayPin, OUTPUT);
-	//Начальное значение реле
-	RelaySwitch(!levelTrigger);
 
-	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
+	if(buttonPin>=0)
+		attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
 
 	if (WifiConnect())
 		MqttConnect();
@@ -85,15 +89,6 @@ void loop()
 		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
 		flagChange = false;
 	}
-
-	//ButtonWf();
-
-	//if (debug && debugTimer.onRestart())
-	//{
-	//	Serial.print("btnPress=");
-	//	Serial.println(digitalRead(buttonPin));
-	//}
-
 
 }
 
@@ -201,9 +196,7 @@ void OnBtnPress(bool state)
 {
 	if (debug)
 	{
-		Serial.print("OnBtnPress(");
-		Serial.print(state);
-		Serial.println(")");
+		Serial.print("OnBtnPress(" + String(state) + ")");
 	}
 
 	RelaySwitch(state);
