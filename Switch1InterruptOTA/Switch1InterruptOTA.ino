@@ -40,6 +40,8 @@ volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать 
 void setup()
 {
 	Serial.begin(115200);
+	ArduinoOTA.setHostname(clientName);
+	ArduinoOTA.begin();
 
 	//Начальное значение реле
 	RelaySwitch(false);
@@ -56,7 +58,6 @@ void setup()
 	if (WifiConnect())
 		MqttConnect();
 
-	ArduinoOTA.begin();
 }
 
 void loop()
