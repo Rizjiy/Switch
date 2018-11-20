@@ -4,10 +4,13 @@
 #include <Secret.h>
 #include <ArduinoOTA.h>
 
+#include <string>
+using namespace std;
+
 //***Блок переменных
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
-const char *mqtt_server = MQTT_SERVER;
+const char* mqtt_server = MQTT_SERVER;
 const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
@@ -15,6 +18,8 @@ const char* mqttPass = MQTT_PASSWORD;
 const char* clientName = "switch5";
 const char *topicSwitch = "home/switches/5";
 const char *topicSwitchState = "home/switches/5/status";
+
+string deviceNumber = "5";
 
 const int buttonPin = -1; //-1 - нет физической кнопки
 const int relayPin = 13;
@@ -30,6 +35,17 @@ RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
 RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 //**
+
+string baseTopic = "home/switches";
+string topicSubscribe;	// home/switches/5/#
+
+string topicMainPin;	// home/switches/5
+string topicState;		// home/switches/5/state
+
+string topicPinSet;		// home/switches/5/pins/13/set
+string topicPinGet;		// home/switches/5/pins/13/get
+
+string topicCmd;		// home/switches/5/cmd
 
 bool debug = true;
 
@@ -57,6 +73,13 @@ void setup()
 
 	if (WifiConnect())
 		MqttConnect();
+
+	//***подготавливаем топики
+	topicMainPin = baseTopic + "/" + deviceNumber;	
+	topicSubscribe = topicMainPin + "/#";
+	topicState = topicMainPin + "/state";
+	topicCmd = topicMainPin + "/cmd";
+	//**
 
 }
 
@@ -125,9 +148,7 @@ bool MqttConnect()
 			// Once connected, publish an announcement...
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
-			mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
-
+			mqttclient.subscribe(topicSubscribe.c_str()); // подписываемся нв топики для этого устройства
 		}
 		else
 		{
