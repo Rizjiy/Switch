@@ -15,11 +15,7 @@ const int mqtt_port = MQTT_PORT; // ѕорт дл€ подключени€ к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const char* clientName = "switch5";
-const char *topicSwitch = "home/switches/5";
-const char *topicSwitchState = "home/switches/5/status";
-
-string deviceNumber = "5";
+string deviceName = "switch98";
 
 const int buttonPin = -1; //-1 - нет физической кнопки
 const int relayPin = 13;
@@ -37,15 +33,12 @@ RBD::Timer lockTimer2(90); // защита от дребезга
 //**
 
 string baseTopic = "home/switches";
-string topicSubscribe;	// home/switches/5/#
-
-string topicMainPin;	// home/switches/5
-string topicState;		// home/switches/5/state
-
-string topicPinSet;		// home/switches/5/pins/13/set
-string topicPinGet;		// home/switches/5/pins/13/get
-
-string topicCmd;		// home/switches/5/cmd
+string strState = "/state";
+string strMainPin = "/main";
+string topicSubscribe;		// home/switches/switch5/#
+string topicPins;			// home/switches/switch5/pins  /12 или /main
+string topicPinsState;		// home/switches/switch5/pins/state  /12 или /main							
+string topicCmd;			// home/switches/switch5/cmd
 
 bool debug = true;
 
@@ -56,7 +49,7 @@ volatile boolean flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать 
 void setup()
 {
 	Serial.begin(115200);
-	ArduinoOTA.setHostname(clientName);
+	ArduinoOTA.setHostname(deviceName.c_str());
 	ArduinoOTA.begin();
 
 	//Ќачальное значение реле
@@ -75,10 +68,10 @@ void setup()
 		MqttConnect();
 
 	//***подготавливаем топики
-	topicMainPin = baseTopic + "/" + deviceNumber;	
-	topicSubscribe = topicMainPin + "/#";
-	topicState = topicMainPin + "/state";
-	topicCmd = topicMainPin + "/cmd";
+	topicSubscribe	= baseTopic + "/" + deviceName + "/#";
+	topicPins		= baseTopic + "/" + deviceName + "/pins";
+	topicPinsState	= baseTopic + "/" + deviceName + "/pins/state";
+	topicCmd		= baseTopic + "/" + deviceName + "/cmd";
 	//**
 
 }
@@ -108,9 +101,9 @@ void loop()
 		}
 	}
 
-	// ≈сли запущен флаг, то публикуем состо€ние на брокер
+	// ƒл€ прерывани€. ≈сли запущен флаг, то публикуем состо€ние на брокер
 	if (flagChange) {
-		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
+		PublicMainPinState();
 		flagChange = false;
 	}
 
@@ -142,11 +135,11 @@ bool MqttConnect()
 		Serial.println("...");
 		// Attempt to connect
 		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
-		if (mqttclient.connect(clientName, mqttUser, mqttPass))
+		if (mqttclient.connect(deviceName.c_str(), mqttUser, mqttPass))
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			mqttclient.publish("Start", clientName);
+			mqttclient.publish("Start", deviceName.c_str());
 			// ... and resubscribe
 			mqttclient.subscribe(topicSubscribe.c_str()); // подписываемс€ нв топики дл€ этого устройства
 		}
@@ -161,6 +154,28 @@ bool MqttConnect()
 	return true;
 }
 
+//парсим строку (/main /12 /main/state /12/state) и вытаскиваем от туда Gpio. ≈сли не удалось вкрнем -1 и считаем что это mainPin
+int ParsePin(const std::string &substr) {
+
+	int pin;
+	string resStr;
+
+	if (substr.rfind(strState) != -1)
+	{
+		//отсекаем state справа
+		resStr.assign(substr, 0, substr.length());
+	}
+
+	//остаетс€ (/main /12)
+	if (resStr.find("/") == 0)
+		resStr.erase(0, 1);
+
+	String strPin = resStr.c_str();
+	pin = strPin.toInt();
+
+	return pin;
+}
+
 // ‘ункци€ получени€ данных от сервера
 void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
@@ -171,24 +186,62 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 	Serial.println();
 
-	bool val = false;
-	if (payload[0] == '1')
-		val = true;
-	else
-		val = false;
 
-	if (strcmp(topic, topicSwitch) == 0)
-	{
-		// включаем или выключаем реле в зависимоти от полученных значений данных
-		OnBtnPress(val);
-		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
-	}
-	else if (strcmp(topic, topicSwitchState) == 0)
-	{
-		//обновл€ем статус других устройств, фактическим состо€нием выключател€
-		if (val != rState)
-			mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
+	string topicStr(topic);
 
+	if (topicStr.find(topicPins) != -1)
+	{
+		//значение должно быть 0 или 1
+		bool val = false;
+		if (payload[0] == '1')
+			val = true;
+		else
+			val = false;
+
+
+		string subTopic;
+		//отсекаем базу (/main /12 /main/state /12/state)
+		subTopic.assign(topicStr, topicPins.length(), topicStr.length() - topicPins.length());
+		Serial.println("subTopic: " + String(subTopic.c_str()));
+
+		//главный пин (всегда 1 - включить)
+		if (subTopic.rfind(strMainPin) != -1)
+		{
+			if (subTopic.rfind(strState) != -1)
+			{
+				//обновл€ем статус других устройств, фактическим состо€нием выключател€
+				if (val != rState)
+					PublicMainPinState();
+			}
+			else
+			{
+				// включаем или выключаем реле в зависимоти от полученных значений данных
+				OnBtnPress(val);
+				PublicMainPinState();
+			}
+		}
+		else
+		{
+			//вытаскиваем пин
+			int pin = ParsePin(subTopic);
+			Serial.println("pin: " + String(pin));
+
+			bool actualPinLevel = digitalRead(pin);
+
+			if (subTopic.rfind(strState) != -1)
+			{
+				//если это стейт, то обновлем его и отправл€ем назад
+				if (val != actualPinLevel)
+					mqttclient.publish(topic, String(actualPinLevel).c_str(), true);
+			}
+			else
+			{
+				// включаем или выключаем реле в зависимоти от полученных значений данных
+				digitalWrite(pin, val);
+				Serial.println("digitalWrite(" + String(pin) + String(val) + ")");
+				mqttclient.publish((topicStr+strState).c_str(), String(val).c_str(), true);
+			}
+		}
 	}
 }
 
@@ -218,7 +271,7 @@ void OnBtnPress(bool state)
 {
 	if (debug)
 	{
-		Serial.print("OnBtnPress(" + String(state) + ")");
+		Serial.println("OnBtnPress(" + String(state) + ")");
 	}
 
 	RelaySwitch(state);
@@ -236,7 +289,10 @@ void RelaySwitch(bool state)
 		digitalWrite(relayPin, !state);
 }
 
-
+void PublicMainPinState() {
+	string topicMainPinState = topicPinsState + strMainPin;
+	mqttclient.publish(topicMainPinState.c_str(), String(rState).c_str(), true);
+}
 
 
 
