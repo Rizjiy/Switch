@@ -1,3 +1,9 @@
+/*MQTT:
+включить реле: home/switches/switch5/pins/0 payload:1
+установить уровень на пин 12: home/switches/switch5/pins/12
+статус на пине 12: home/switches/switch5/pins/12/state
+*/
+
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
@@ -34,11 +40,10 @@ RBD::Timer lockTimer2(90); // защита от дребезга
 
 string baseTopic = "home/switches";
 string strState = "/state";
-string strMainPin = "/main";
-string topicSubscribe;		// home/switches/switch5/#
-string topicPins;			// home/switches/switch5/pins  /12 или /main
-string topicPinsState;		// home/switches/switch5/pins/state  /12 или /main							
-string topicCmd;			// home/switches/switch5/cmd
+string strMainPin = "/0";
+string topicSubscribe = baseTopic + "/" + deviceName + "/#";		// home/switches/switch5/#
+string topicPins = baseTopic + "/" + deviceName + "/pins";			// home/switches/switch5/pins				
+string topicCmd = baseTopic + "/" + deviceName + "/cmd";			// home/switches/switch5/cmd
 
 bool debug = true;
 
@@ -66,13 +71,6 @@ void setup()
 
 	if (WifiConnect())
 		MqttConnect();
-
-	//***подготавливаем топики
-	topicSubscribe	= baseTopic + "/" + deviceName + "/#";
-	topicPins		= baseTopic + "/" + deviceName + "/pins";
-	topicPinsState	= baseTopic + "/" + deviceName + "/pins/state";
-	topicCmd		= baseTopic + "/" + deviceName + "/cmd";
-	//**
 
 }
 
@@ -154,9 +152,9 @@ bool MqttConnect()
 	return true;
 }
 
-//парсим строку (/main /12 /main/state /12/state) и вытаскиваем от туда Gpio. ≈сли не удалось вкрнем -1 и считаем что это mainPin
+//ѕарсим подстроку топика и вытаскиваем от туда Gpio. ≈сли не удалось вернем 0 и считаем что это mainPin
 int ParsePin(const std::string &substr) {
-
+ //¬арианты подстрок: /main, /12, /main/state, /12/state
 	int pin;
 	string resStr;
 
@@ -166,7 +164,10 @@ int ParsePin(const std::string &substr) {
 		resStr.assign(substr, 0, substr.length());
 	}
 
-	//остаетс€ (/main /12)
+	if (resStr == strMainPin)
+		return 0;
+
+	//остаетс€ (/12)
 	if (resStr.find("/") == 0)
 		resStr.erase(0, 1);
 
@@ -204,8 +205,12 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 		subTopic.assign(topicStr, topicPins.length(), topicStr.length() - topicPins.length());
 		Serial.println("subTopic: " + String(subTopic.c_str()));
 
+		//вытаскиваем пин. ≈сли пин = 0, то это mainPin 
+		int pin = ParsePin(subTopic);
+		Serial.println("pin: " + String(pin));
+
 		//главный пин (всегда 1 - включить)
-		if (subTopic.rfind(strMainPin) != -1)
+		if (pin == 0)
 		{
 			if (subTopic.rfind(strState) != -1)
 			{
@@ -222,10 +227,6 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 		}
 		else
 		{
-			//вытаскиваем пин
-			int pin = ParsePin(subTopic);
-			Serial.println("pin: " + String(pin));
-
 			bool actualPinLevel = digitalRead(pin);
 
 			if (subTopic.rfind(strState) != -1)
@@ -239,7 +240,7 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 				// включаем или выключаем реле в зависимоти от полученных значений данных
 				digitalWrite(pin, val);
 				Serial.println("digitalWrite(" + String(pin) + String(val) + ")");
-				mqttclient.publish((topicStr+strState).c_str(), String(val).c_str(), true);
+				mqttclient.publish((topicStr + strState).c_str(), String(val).c_str(), true);
 			}
 		}
 	}
@@ -289,8 +290,9 @@ void RelaySwitch(bool state)
 		digitalWrite(relayPin, !state);
 }
 
+
 void PublicMainPinState() {
-	string topicMainPinState = topicPinsState + strMainPin;
+	string topicMainPinState = topicPins + strMainPin + strState;
 	mqttclient.publish(topicMainPinState.c_str(), String(rState).c_str(), true);
 }
 
