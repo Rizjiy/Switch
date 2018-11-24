@@ -1,5 +1,6 @@
 /*MQTT:
-включить реле: home/switches/switch5/pins/0 payload:1
+включить реле: home/switches/switch5/pins/main payload:1
+статус реле: home/switches/switch5/pins/main/state
 установить уровень на пин 12: home/switches/switch5/pins/12
 статус на пине 12: home/switches/switch5/pins/12/state
 */
@@ -21,12 +22,11 @@ const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-string deviceName = "switch98";
+const string deviceName = "switch97";
 
 const int buttonPin = -1; //-1 - нет физической кнопки
-const int relayPin = 13;
+const int mainPin = 13;
 
-boolean levelTrigger = LOW;
 boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
 WiFiClient wclient;
@@ -38,12 +38,14 @@ RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 //**
 
-string baseTopic = "home/switches";
-string strState = "/state";
-string strMainPin = "/0";
-string topicSubscribe = baseTopic + "/" + deviceName + "/#";		// home/switches/switch5/#
-string topicPins = baseTopic + "/" + deviceName + "/pins";			// home/switches/switch5/pins				
-string topicCmd = baseTopic + "/" + deviceName + "/cmd";			// home/switches/switch5/cmd
+const string baseTopic = "home/switches";
+const string strState = "state";
+const string strMainPin = "main";
+const string topicSubscribe = baseTopic + "/" + deviceName + "/#";		// home/switches/switch5/#
+const string topicPins = baseTopic + "/" + deviceName + "/pins";			// home/switches/switch5/pins				
+const string topicCmd = baseTopic + "/" + deviceName + "/cmd";			// home/switches/switch5/cmd
+
+const int pinsOut[6] = { 16,5,4,14,12,13 }; //доступные пины
 
 bool debug = true;
 
@@ -58,13 +60,14 @@ void setup()
 	ArduinoOTA.begin();
 
 	//Начальное значение реле
-	RelaySwitch(false);
+	//RelaySwitch(false);
+
+	//установим режим output для всех свободных пинов
+	SetOutputPins();
 
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
 	mqttclient.setCallback(MqttCallback);
-
-	pinMode(relayPin, OUTPUT);
 
 	if(buttonPin>=0)
 		attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
@@ -101,10 +104,21 @@ void loop()
 
 	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
 	if (flagChange) {
-		PublicMainPinState();
+		PublicPinState(mainPin, true, rState);
 		flagChange = false;
 	}
 
+}
+
+void SetOutputPins()
+{
+	for (int i = 0; i < sizeof(pinsOut) / sizeof(pinsOut[0]); ++i)
+	{
+		if (pinsOut[i] == buttonPin)
+			continue;
+
+		pinMode(pinsOut[i], OUTPUT);
+	}
 }
 
 bool WifiConnect()
@@ -152,31 +166,6 @@ bool MqttConnect()
 	return true;
 }
 
-//Парсим подстроку топика и вытаскиваем от туда Gpio. Если не удалось вернем 0 и считаем что это mainPin
-int ParsePin(const std::string &substr) {
- //Варианты подстрок: /main, /12, /main/state, /12/state
-	int pin;
-	string resStr;
-
-	if (substr.rfind(strState) != -1)
-	{
-		//отсекаем state справа
-		resStr.assign(substr, 0, substr.length());
-	}
-
-	if (resStr == strMainPin)
-		return 0;
-
-	//остается (/12)
-	if (resStr.find("/") == 0)
-		resStr.erase(0, 1);
-
-	String strPin = resStr.c_str();
-	pin = strPin.toInt();
-
-	return pin;
-}
-
 // Функция получения данных от сервера
 void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
@@ -199,50 +188,65 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 		else
 			val = false;
 
-
+		//отсекаем базу 
 		string subTopic;
-		//отсекаем базу (/main /12 /main/state /12/state)
 		subTopic.assign(topicStr, topicPins.length(), topicStr.length() - topicPins.length());
 		Serial.println("subTopic: " + String(subTopic.c_str()));
 
-		//вытаскиваем пин. Если пин = 0, то это mainPin 
-		int pin = ParsePin(subTopic);
-		Serial.println("pin: " + String(pin));
+		//***парсим topic (/main /12 /main/state /12/state)
+		size_t pinStart = subTopic.find('/');
+		size_t stateStart = subTopic.find('/', pinStart + 1);
 
-		//главный пин (всегда 1 - включить)
-		if (pin == 0)
+		size_t pinEnd = stateStart;
+		if (stateStart == string::npos)
+			pinEnd = subTopic.length();
+
+		string pinSection = subTopic.substr(pinStart + 1, pinEnd - pinStart - 1);
+
+		string stateSection;
+		if(stateStart != string::npos)
+			stateSection = subTopic.substr(stateStart + 1, subTopic.length() - 1);
+
+		//Serial.println("pinStart: " + String(pinStart) + " pinEnd: " + String(pinEnd) + " stateStart: " + String(stateStart));
+		Serial.println("pinSection: " + String(pinSection.c_str()) + " stateSection: " + String(stateSection.c_str()));
+
+		bool isMainPin;
+		int pin;
+		if (pinSection == strMainPin)
 		{
-			if (subTopic.rfind(strState) != -1)
-			{
-				//обновляем статус других устройств, фактическим состоянием выключателя
-				if (val != rState)
-					PublicMainPinState();
-			}
-			else
-			{
-				// включаем или выключаем реле в зависимоти от полученных значений данных
-				OnBtnPress(val);
-				PublicMainPinState();
-			}
+			isMainPin = true;
+			pin = mainPin;
 		}
 		else
 		{
-			bool actualPinLevel = digitalRead(pin);
+			isMainPin = false;
+			String strPin = pinSection.c_str();
+			pin = strPin.toInt();
 
-			if (subTopic.rfind(strState) != -1)
-			{
-				//если это стейт, то обновлем его и отправляем назад
-				if (val != actualPinLevel)
-					mqttclient.publish(topic, String(actualPinLevel).c_str(), true);
-			}
-			else
-			{
-				// включаем или выключаем реле в зависимоти от полученных значений данных
-				digitalWrite(pin, val);
-				Serial.println("digitalWrite(" + String(pin) + String(val) + ")");
-				mqttclient.publish((topicStr + strState).c_str(), String(val).c_str(), true);
-			}
+			if(pinSection != "0" && pin == 0)
+				Serial.println("Error! ParseTopic: " + String(subTopic.c_str()));
+
 		}
+
+		bool isState = stateSection == strState;
+		//**
+
+		bool actualPinLevel = digitalRead(pin);
+
+		if (isState)
+		{
+			//если это стейт, то обновлем его фактическим значением и отправляем назад
+			if (val != actualPinLevel)
+				PublicPinState(pin, isMainPin, actualPinLevel);
+		}
+		else
+		{
+			// включаем или выключаем реле в зависимоти от полученных значений данных
+			digitalWrite(pin, val);
+			Serial.println("digitalWrite(" + String(pin) + "," + String(val) + ")");
+			PublicPinState(pin, isMainPin, val);
+		}
+
 	}
 }
 
@@ -275,25 +279,24 @@ void OnBtnPress(bool state)
 		Serial.println("OnBtnPress(" + String(state) + ")");
 	}
 
-	RelaySwitch(state);
+	digitalWrite(mainPin, state);
 
 	//меняем текущее состояние
 	rState = state;
 }
 
-//Щелкаем реле
-void RelaySwitch(bool state)
-{
-	if (levelTrigger)
-		digitalWrite(relayPin, state);
+//Отправляет на сервер состояние текущее Gpio
+void PublicPinState(uint8_t pin, bool isMainPin, bool val) {
+	
+	string topicState;
+	if(isMainPin)
+		topicState = topicPins +"/"+ strMainPin +"/"+ strState;
 	else
-		digitalWrite(relayPin, !state);
-}
+		topicState = topicPins + "/" + String(pin).c_str() + "/" + strState;
 
+	mqttclient.publish(topicState.c_str(), String(val).c_str(), true);
+	Serial.println("MQTT publish: [" + String(topicState.c_str()) + "] " + String(val));
 
-void PublicMainPinState() {
-	string topicMainPinState = topicPins + strMainPin + strState;
-	mqttclient.publish(topicMainPinState.c_str(), String(rState).c_str(), true);
 }
 
 
