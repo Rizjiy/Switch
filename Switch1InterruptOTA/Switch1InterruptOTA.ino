@@ -151,7 +151,8 @@ bool MqttConnect()
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			mqttclient.publish("Start", deviceName.c_str());
+			string startPayload = deviceName + ' ' + String(wclient.localIP()).c_str();
+			mqttclient.publish("Start", startPayload.c_str());
 			// ... and resubscribe
 			mqttclient.subscribe(topicSubscribe.c_str()); // подписываемся нв топики для этого устройства
 		}
