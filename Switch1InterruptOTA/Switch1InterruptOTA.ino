@@ -1,8 +1,8 @@
 /*MQTT:
-включить реле: home/switches/switch5/pins/main payload:1
-статус реле: home/switches/switch5/pins/main/state
-установить уровень на пин 12: home/switches/switch5/pins/12
-статус на пине 12: home/switches/switch5/pins/12/state
+РІРєР»СЋС‡РёС‚СЊ СЂРµР»Рµ: home/switches/switch5/pins/main payload:1
+СЃС‚Р°С‚СѓСЃ СЂРµР»Рµ: home/switches/switch5/pins/main/state
+СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ РЅР° РїРёРЅ 12: home/switches/switch5/pins/12
+СЃС‚Р°С‚СѓСЃ РЅР° РїРёРЅРµ 12: home/switches/switch5/pins/12/state
 */
 
 #include <RBD_Timer.h>
@@ -14,25 +14,25 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char* mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
 const string deviceName = "switch2";
 
-const int buttonPin = -1; //-1 - нет физической кнопки
+const int buttonPin = -1; //-1 - РЅРµС‚ С„РёР·РёС‡РµСЃРєРѕР№ РєРЅРѕРїРєРё
 const int mainPin = 14;
 
-boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
+boolean levelButton = HIGH; // РЎРёРіРЅР°Р» РІ РЅРѕСЂРјР°Р»СЊРЅРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё РЅР° РєРЅРѕРїРєРµ РёР»Рё РґР°С‚С‡РёРєРµ РєР°СЃР°РЅРёСЏ
 
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
-RBD::Timer lockTimer(30); // защита от дребезга
-RBD::Timer lockTimer2(90); // защита от дребезга
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
+RBD::Timer debugTimer(3000); //3 sec РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РЅРµ Р·Р°Р±РёРІР°С‚СЊ СЌС„РёСЂ
+RBD::Timer lockTimer(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
+RBD::Timer lockTimer2(90); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 //**
 
 const string baseTopic = "home/switches";
@@ -42,13 +42,13 @@ const string topicSubscribe = baseTopic + "/" + deviceName + "/#";		// home/swit
 const string topicPins = baseTopic + "/" + deviceName + "/pins";			// home/switches/switch5/pins				
 const string topicCmd = baseTopic + "/" + deviceName + "/cmd";			// home/switches/switch5/cmd
 
-const int pinsOut[6] = { 16,14,12,13,15 }; //доступные пины для esp8266
+const int pinsOut[6] = { 16,14,12,13,15 }; //РґРѕСЃС‚СѓРїРЅС‹Рµ РїРёРЅС‹ РґР»СЏ esp8266
 
 bool debug = true;
 
 volatile bool lock = false;
-volatile boolean rState = false; // В прерываниях всегда используем тип volatile для изменяемых переменных
-volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
+volatile boolean rState = false; // Р’ РїСЂРµСЂС‹РІР°РЅРёСЏС… РІСЃРµРіРґР° РёСЃРїРѕР»СЊР·СѓРµРј С‚РёРї volatile РґР»СЏ РёР·РјРµРЅСЏРµРјС‹С… РїРµСЂРµРјРµРЅРЅС‹С…
+volatile boolean flagChange = false; // Р¤Р»Р°Рі РЅСѓР¶РµРЅ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРїСѓР±Р»РёРєРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ РїРѕСЃР»Рµ С‚РѕРіРѕ
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
@@ -59,10 +59,10 @@ void setup()
 	ArduinoOTA.setHostname(deviceName.c_str());
 	ArduinoOTA.begin();
 
-	//Начальное значение реле
+	//РќР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ СЂРµР»Рµ
 	//RelaySwitch(false);
 
-	//установим режим output для всех свободных пинов
+	//СѓСЃС‚Р°РЅРѕРІРёРј СЂРµР¶РёРј output РґР»СЏ РІСЃРµС… СЃРІРѕР±РѕРґРЅС‹С… РїРёРЅРѕРІ
 	SetOutputPins();
 
 	//Mqtt setup
@@ -81,28 +81,28 @@ void loop()
 {
 	ArduinoOTA.handle();
 
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (reconnectTimer.isExpired())
 	{
 		if (WifiConnect())
 			if (MqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				mqttclient.loop();
 			}
 			else
 			{
 				reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
-	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
+	// Р”Р»СЏ РїСЂРµСЂС‹РІР°РЅРёСЏ. Р•СЃР»Рё Р·Р°РїСѓС‰РµРЅ С„Р»Р°Рі, С‚Рѕ РїСѓР±Р»РёРєСѓРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ
 	if (flagChange) {
 		PublicPinState(mainPin, true, rState);
 		flagChange = false;
@@ -154,7 +154,7 @@ bool MqttConnect()
 			string startPayload = deviceName + ' ' + String(wclient.localIP()).c_str();
 			mqttclient.publish("Start", startPayload.c_str());
 			// ... and resubscribe
-			mqttclient.subscribe(topicSubscribe.c_str()); // подписываемся нв топики для этого устройства
+			mqttclient.subscribe(topicSubscribe.c_str()); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅРІ С‚РѕРїРёРєРё РґР»СЏ СЌС‚РѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°
 		}
 		else
 		{
@@ -167,7 +167,7 @@ bool MqttConnect()
 	return true;
 }
 
-// Функция получения данных от сервера
+// Р¤СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕС‚ СЃРµСЂРІРµСЂР°
 void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
@@ -182,19 +182,19 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 
 	if (topicStr.find(topicPins) != -1)
 	{
-		//значение должно быть 0 или 1
+		//Р·РЅР°С‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ 0 РёР»Рё 1
 		bool val = false;
 		if (payload[0] == '1')
 			val = true;
 		else
 			val = false;
 
-		//отсекаем базу 
+		//РѕС‚СЃРµРєР°РµРј Р±Р°Р·Сѓ 
 		string subTopic;
 		subTopic.assign(topicStr, topicPins.length(), topicStr.length() - topicPins.length());
 		Serial.println("subTopic: " + String(subTopic.c_str()));
 
-		//***парсим topic (/main /12 /main/state /12/state)
+		//***РїР°СЂСЃРёРј topic (/main /12 /main/state /12/state)
 		size_t pinStart = subTopic.find('/');
 		size_t stateStart = subTopic.find('/', pinStart + 1);
 
@@ -236,13 +236,13 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 
 		if (isState)
 		{
-			//если это стейт, то обновлем его фактическим значением и отправляем назад
+			//РµСЃР»Рё СЌС‚Рѕ СЃС‚РµР№С‚, С‚Рѕ РѕР±РЅРѕРІР»РµРј РµРіРѕ С„Р°РєС‚РёС‡РµСЃРєРёРј Р·РЅР°С‡РµРЅРёРµРј Рё РѕС‚РїСЂР°РІР»СЏРµРј РЅР°Р·Р°Рґ
 			if (val != actualPinLevel)
 				PublicPinState(pin, isMainPin, actualPinLevel);
 		}
 		else
 		{
-			// включаем или выключаем реле в зависимоти от полученных значений данных
+			// РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј СЂРµР»Рµ РІ Р·Р°РІРёСЃРёРјРѕС‚Рё РѕС‚ РїРѕР»СѓС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР°РЅРЅС‹С…
 			digitalWrite(pin, val);
 			Serial.println("digitalWrite(" + String(pin) + "," + String(val) + ")");
 			PublicPinState(pin, isMainPin, val);
@@ -251,10 +251,10 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 }
 
-// Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
+// Р¤СѓРЅРєС†РёСЏ, РІС‹Р·С‹РІР°РµРјР°СЏ РїСЂРµСЂС‹РІР°РЅРёРµРј, РґР»СЏ РєРЅРѕРїРєРё Р±РµР· С„РёРєСЃР°С†РёРё (button without fixing)
 void Interrupt_WF() {
 
-	//Защита от дребезга 
+	//Р—Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР° 
 	if (lock || !lockTimer2.isExpired())
 		return;
 	lock = true;
@@ -269,7 +269,7 @@ void Interrupt_WF() {
 		flagChange = true;
 	}
 
-	lockTimer2.restart(); // защищаемся от э/м скачков в реле
+	lockTimer2.restart(); // Р·Р°С‰РёС‰Р°РµРјСЃСЏ РѕС‚ СЌ/Рј СЃРєР°С‡РєРѕРІ РІ СЂРµР»Рµ
 	lock = false;
 }
 
@@ -282,11 +282,11 @@ void OnBtnPress(bool state)
 
 	digitalWrite(mainPin, state);
 
-	//меняем текущее состояние
+	//РјРµРЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
 	rState = state;
 }
 
-//Отправляет на сервер состояние текущее Gpio
+//РћС‚РїСЂР°РІР»СЏРµС‚ РЅР° СЃРµСЂРІРµСЂ СЃРѕСЃС‚РѕСЏРЅРёРµ С‚РµРєСѓС‰РµРµ Gpio
 void PublicPinState(uint8_t pin, bool isMainPin, bool val) {
 	
 	string topicState;
@@ -299,8 +299,3 @@ void PublicPinState(uint8_t pin, bool isMainPin, bool val) {
 	Serial.println("MQTT publish: [" + String(topicState.c_str()) + "] " + String(val));
 
 }
-
-
-
-
-
