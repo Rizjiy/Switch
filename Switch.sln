@@ -3,25 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1", "Switch1\Switch1.vcxproj", "{A6E667B9-D639-44C5-9204-8C6313C606D4}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1Interrupt", "Switch1Interrupt\Switch1Interrupt.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableSender", "Switch1DimmableSender\Switch1DimmableSender.vcxproj", "{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableReceiver", "Switch1DimmableReceiver\Switch1DimmableReceiver.vcxproj", "{7202DE19-D80C-4A56-936C-9C39644620CA}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FanControl", "FanControl\FanControl.vcxproj", "{0727F7AA-6508-4573-91D2-FF7474D3B18A}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DhtSensor", "DhtSensor\DhtSensor.vcxproj", "{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1InterruptOTA", "Switch1InterruptOTA\Switch1InterruptOTA.vcxproj", "{C686862F-0816-46DD-BDD6-73C7B1844CB7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bme280Control", "Bme280Control\Bme280Control.vcxproj", "{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{EB004B05-E24F-42EE-876A-02BBCED45E08}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "I2CScaner", "Utils\I2CScaner\I2CScaner.vcxproj", "{99F2620D-1F78-45A9-8B95-872A8C6F296A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Beta", "Beta", "{1B07952C-0DE7-42B0-9DDC-4A46658379CB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bme280Control", "Beta\Bme280Control\Bme280Control.vcxproj", "{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DimLedTest", "Beta\DimLedTest\DimLedTest.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FanControl", "Beta\FanControl\FanControl.vcxproj", "{0727F7AA-6508-4573-91D2-FF7474D3B18A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableReceiver", "Beta\Switch1DimmableReceiver\Switch1DimmableReceiver.vcxproj", "{7202DE19-D80C-4A56-936C-9C39644620CA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableSender", "Beta\Switch1DimmableSender\Switch1DimmableSender.vcxproj", "{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,26 +29,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A6E667B9-D639-44C5-9204-8C6313C606D4}.Debug|x86.ActiveCfg = Debug|Win32
-		{A6E667B9-D639-44C5-9204-8C6313C606D4}.Debug|x86.Build.0 = Debug|Win32
-		{A6E667B9-D639-44C5-9204-8C6313C606D4}.Release|x86.ActiveCfg = Release|Win32
-		{A6E667B9-D639-44C5-9204-8C6313C606D4}.Release|x86.Build.0 = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
-		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Debug|x86.ActiveCfg = Debug|Win32
-		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Debug|x86.Build.0 = Debug|Win32
-		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Release|x86.ActiveCfg = Release|Win32
-		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Release|x86.Build.0 = Release|Win32
-		{7202DE19-D80C-4A56-936C-9C39644620CA}.Debug|x86.ActiveCfg = Debug|Win32
-		{7202DE19-D80C-4A56-936C-9C39644620CA}.Debug|x86.Build.0 = Debug|Win32
-		{7202DE19-D80C-4A56-936C-9C39644620CA}.Release|x86.ActiveCfg = Release|Win32
-		{7202DE19-D80C-4A56-936C-9C39644620CA}.Release|x86.Build.0 = Release|Win32
-		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.ActiveCfg = Debug|Win32
-		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.Build.0 = Debug|Win32
-		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.ActiveCfg = Release|Win32
-		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.Build.0 = Release|Win32
 		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Debug|x86.ActiveCfg = Debug|Win32
 		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Debug|x86.Build.0 = Debug|Win32
 		{77F4F562-ABE2-4737-BD71-AA08B8C6BBAA}.Release|x86.ActiveCfg = Release|Win32
@@ -57,20 +37,41 @@ Global
 		{C686862F-0816-46DD-BDD6-73C7B1844CB7}.Debug|x86.Build.0 = Debug|Win32
 		{C686862F-0816-46DD-BDD6-73C7B1844CB7}.Release|x86.ActiveCfg = Release|Win32
 		{C686862F-0816-46DD-BDD6-73C7B1844CB7}.Release|x86.Build.0 = Release|Win32
-		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Debug|x86.ActiveCfg = Debug|Win32
-		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Debug|x86.Build.0 = Debug|Win32
-		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Release|x86.ActiveCfg = Release|Win32
-		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Release|x86.Build.0 = Release|Win32
 		{99F2620D-1F78-45A9-8B95-872A8C6F296A}.Debug|x86.ActiveCfg = Debug|Win32
 		{99F2620D-1F78-45A9-8B95-872A8C6F296A}.Debug|x86.Build.0 = Debug|Win32
 		{99F2620D-1F78-45A9-8B95-872A8C6F296A}.Release|x86.ActiveCfg = Release|Win32
 		{99F2620D-1F78-45A9-8B95-872A8C6F296A}.Release|x86.Build.0 = Release|Win32
+		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Debug|x86.ActiveCfg = Debug|Win32
+		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Debug|x86.Build.0 = Debug|Win32
+		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Release|x86.ActiveCfg = Release|Win32
+		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7}.Release|x86.Build.0 = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.ActiveCfg = Debug|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Debug|x86.Build.0 = Debug|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.ActiveCfg = Release|Win32
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A}.Release|x86.Build.0 = Release|Win32
+		{7202DE19-D80C-4A56-936C-9C39644620CA}.Debug|x86.ActiveCfg = Debug|Win32
+		{7202DE19-D80C-4A56-936C-9C39644620CA}.Debug|x86.Build.0 = Debug|Win32
+		{7202DE19-D80C-4A56-936C-9C39644620CA}.Release|x86.ActiveCfg = Release|Win32
+		{7202DE19-D80C-4A56-936C-9C39644620CA}.Release|x86.Build.0 = Release|Win32
+		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Debug|x86.ActiveCfg = Debug|Win32
+		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Debug|x86.Build.0 = Debug|Win32
+		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Release|x86.ActiveCfg = Release|Win32
+		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{99F2620D-1F78-45A9-8B95-872A8C6F296A} = {EB004B05-E24F-42EE-876A-02BBCED45E08}
+		{AF01004D-5ECC-4516-B7F0-666DE5D17CF7} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
+		{0727F7AA-6508-4573-91D2-FF7474D3B18A} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
+		{7202DE19-D80C-4A56-936C-9C39644620CA} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
+		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {468C05DC-5AC8-4B78-975B-2222D3CC8AE4}
