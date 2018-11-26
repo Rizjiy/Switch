@@ -22,15 +22,12 @@ const int mqtt_port = MQTT_PORT; // ѕорт дл€ подключени€ к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const string deviceName = "switch97";
+const string deviceName = "switch2";
 
 const int buttonPin = -1; //-1 - нет физической кнопки
-const int mainPin = 13;
+const int mainPin = 14;
 
 boolean levelButton = HIGH; // —игнал в нормальном состо€нии на кнопке или датчике касани€
-
-WiFiClient wclient;
-PubSubClient mqttclient(wclient);
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 RBD::Timer debugTimer(3000); //3 sec дл€ того, чтобы не забивать эфир
@@ -45,13 +42,16 @@ const string topicSubscribe = baseTopic + "/" + deviceName + "/#";		// home/swit
 const string topicPins = baseTopic + "/" + deviceName + "/pins";			// home/switches/switch5/pins				
 const string topicCmd = baseTopic + "/" + deviceName + "/cmd";			// home/switches/switch5/cmd
 
-const int pinsOut[6] = { 16,5,4,14,12,13 }; //доступные пины
+const int pinsOut[6] = { 16,14,12,13,15 }; //доступные пины дл€ esp8266
 
 bool debug = true;
 
 volatile bool lock = false;
 volatile boolean rState = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
 volatile boolean flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать сообщение на брокер после того
+
+WiFiClient wclient;
+PubSubClient mqttclient(wclient);
 
 void setup()
 {
