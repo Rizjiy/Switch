@@ -195,8 +195,8 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 		Serial.println("subTopic: " + String(subTopic.c_str()));
 
 		//***парсим topic (/main /12 /main/state /12/state)
-		size_t pinStart = subTopic.find('/');
-		size_t stateStart = subTopic.find('/', pinStart + 1);
+		size_t pinStart = subTopic.find("/");
+		size_t stateStart = subTopic.find("/", pinStart + 1);
 
 		size_t pinEnd = stateStart;
 		if (stateStart == string::npos)
