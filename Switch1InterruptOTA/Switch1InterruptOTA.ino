@@ -22,9 +22,9 @@ const int mqtt_port = MQTT_PORT; // Порт для подключения к с
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const string deviceName = "switch2";
+const string deviceName = "switch3";
 
-const int buttonPin = -1; //-1 - нет физической кнопки
+const int buttonPin = 13; //-1 - нет физической кнопки
 const int mainPin = 14;
 
 boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
@@ -34,6 +34,7 @@ RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забив
 RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 //**
+
 
 const string baseTopic = "home/switches";
 const string strState = "state";
@@ -105,6 +106,7 @@ void loop()
 	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
 	if (flagChange) {
 		PublicPinState(mainPin, true, rState);
+		PublicPinState(mainPin, false, rState);
 		flagChange = false;
 	}
 
