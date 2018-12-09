@@ -12,8 +12,8 @@ using namespace std;
 
 class ConnectionHelper {
 public:
-	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass);
-	void MqttConnect();
+	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
+	bool MqttConnect();
 private:
 	const char* _ssid;
 	const char* _wifiPass;
@@ -21,23 +21,64 @@ private:
 	int _mqttPort;
 	const char* _mqttUser;
 	const char* _mqttPass;
+
+	string _deviceName;
+
+	WiFiClient _wclient;
+	PubSubClient _mqttclient;
+
+
 };
 
-ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass){
+ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName){
 	_ssid = ssid;
 	_wifiPass = wifiPass;
 	_mqttServer = mqttServer;
 	_mqttPort = mqttPort;
 	_mqttUser = mqttUser;
 	_mqttPass = mqttPass;
+
+	_deviceName = deviceName;
+
+	WiFiClient _wclient;
+	PubSubClient _mqttclient(_wclient);
+
 }
 
+bool ConnectionHelper::MqttConnect()
+{
+	// Loop until we're reconnected
+	if (!_mqttclient.connected())
+	{
+		Serial.print("Attempting MQTT connection to ");
+		Serial.print(_mqttServer);
+		Serial.println("...");
+		// Attempt to connect
+		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
+		if (_mqttclient.connect(_deviceName.c_str(), _mqttUser, _mqttPass))
+		{
+			Serial.println("connected");
+			// Once connected, publish an announcement...
+			string startPayload = _deviceName + ' ' + String(_wclient.localIP()).c_str();
+			_mqttclient.publish("Start", startPayload.c_str());
+			// ... and resubscribe
+			//mqttclient.subscribe(topicSubscribe.c_str()); // подписываемся нв топики для этого устройства
+		}
+		else
+		{
+			Serial.print("failed, rc=");
+			Serial.println(_mqttclient.state());
+			return false;
+		}
+	}
+
+	return true;
+}
 
 
 class MqttSwitch {
 public:
 	MqttSwitch(byte relayPin, byte buttonPin, string string);
-	bool MqttConnect();
 private:
 	byte _relayPin;
 	byte _buttonPin;
@@ -58,35 +99,6 @@ MqttSwitch::MqttSwitch(byte relayPin, byte buttonPin, string deviceName) {
 
 }
 
-bool MqttSwitch::MqttConnect()
-{
-	// Loop until we're reconnected
-	if (!mqttclient.connected())
-	{
-		Serial.print("Attempting MQTT connection to ");
-		Serial.print(mqtt_server);
-		Serial.println("...");
-		// Attempt to connect
-		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
-		if (mqttclient.connect(_deviceName.c_str(), mqttUser, mqttPass))
-		{
-			Serial.println("connected");
-			// Once connected, publish an announcement...
-			string startPayload = _deviceName + ' ' + String(wclient.localIP()).c_str();
-			mqttclient.publish("Start", startPayload.c_str());
-			// ... and resubscribe
-			mqttclient.subscribe(topicSubscribe.c_str()); // подписываемся нв топики для этого устройства
-		}
-		else
-		{
-			Serial.print("failed, rc=");
-			Serial.println(mqttclient.state());
-			return false;
-		}
-	}
-
-	return true;
-}
 
 
 
