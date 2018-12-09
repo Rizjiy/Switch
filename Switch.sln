@@ -23,7 +23,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableReceiver", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableSender", "Beta\Switch1DimmableSender\Switch1DimmableSender.vcxproj", "{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch", "Utils\CheckFlashConfig\CheckFlashConfig.vcxproj", "{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckFlashConfig", "Utils\CheckFlashConfig\CheckFlashConfig.vcxproj", "{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MqttSwitch", "MqttSwitch\MqttSwitch.vcxitems", "{6D029504-18AB-4872-88CE-E14631FC35E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Beta\Test\Test.vcxproj", "{72A4D9FC-3C73-476D-AF5B-4943B3D68809}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +71,10 @@ Global
 		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Debug|x86.Build.0 = Debug|Win32
 		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Release|x86.ActiveCfg = Release|Win32
 		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Release|x86.Build.0 = Release|Win32
+		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Debug|x86.ActiveCfg = Debug|Win32
+		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Debug|x86.Build.0 = Debug|Win32
+		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Release|x86.ActiveCfg = Release|Win32
+		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,6 +87,7 @@ Global
 		{7202DE19-D80C-4A56-936C-9C39644620CA} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
 		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
 		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7} = {EB004B05-E24F-42EE-876A-02BBCED45E08}
+		{72A4D9FC-3C73-476D-AF5B-4943B3D68809} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {468C05DC-5AC8-4B78-975B-2222D3CC8AE4}
