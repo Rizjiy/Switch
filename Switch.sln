@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableReceiver", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableSender", "Beta\Switch1DimmableSender\Switch1DimmableSender.vcxproj", "{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch", "Utils\CheckFlashConfig\CheckFlashConfig.vcxproj", "{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -61,6 +63,10 @@ Global
 		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Debug|x86.Build.0 = Debug|Win32
 		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Release|x86.ActiveCfg = Release|Win32
 		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D}.Release|x86.Build.0 = Release|Win32
+		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Debug|x86.ActiveCfg = Debug|Win32
+		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Debug|x86.Build.0 = Debug|Win32
+		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Release|x86.ActiveCfg = Release|Win32
+		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{0727F7AA-6508-4573-91D2-FF7474D3B18A} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
 		{7202DE19-D80C-4A56-936C-9C39644620CA} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
 		{881F8406-7FC4-46DB-9F2B-39FA5FDC406D} = {1B07952C-0DE7-42B0-9DDC-4A46658379CB}
+		{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7} = {EB004B05-E24F-42EE-876A-02BBCED45E08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {468C05DC-5AC8-4B78-975B-2222D3CC8AE4}
