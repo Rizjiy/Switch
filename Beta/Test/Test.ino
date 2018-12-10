@@ -38,11 +38,13 @@ class ConnectionHelper {
 public:
 	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
 	void handle();
-	void MqttCallback(char* topic, byte* payload, unsigned int length);
+	//std::function<void(char*, uint8_t*, unsigned int)> MqttCallback;
 	RBD::Timer reconnectTimer; //пауза между реконнектами Wi-Fi
 
 	WiFiClient wifiClient;
 	PubSubClient mqttClient;
+	string topicSubscribe;
+
 
 private:
 	bool wifiConnect();
@@ -58,12 +60,13 @@ private:
 	string _deviceName;
 	string _baseTopic = "home/switches";
 
-	string _topicSubscribe;
 
 
 };
 
-ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName){
+ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName)
+	:wifiClient(), mqttClient(wifiClient)
+{
 	_ssid = ssid;
 	_wifiPass = wifiPass;
 	_mqttServer = mqttServer;
@@ -75,14 +78,12 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const
 
 	RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
 
-	WiFiClient wifiClient;
-	PubSubClient mqttClient(wifiClient);
 	//Mqtt setup
-	mqttClient.setServer(_mqttServer, _mqttPort);
+	mqttClient.setServer(mqttServer, mqttPort);
 	mqttClient.setCallback(MqttCallback);
 
 
-	_topicSubscribe = _baseTopic + "/" + _deviceName + "/#";		// home/switches/switch5/#
+	topicSubscribe = _baseTopic + "/" + _deviceName + "/#";		// home/switches/switch5/#
 }
 
 bool ConnectionHelper::wifiConnect()
@@ -115,10 +116,10 @@ bool ConnectionHelper::mqttConnect()
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			string startPayload = _deviceName + ' ' + String(wifiClient.localIP()).c_str();
+			string startPayload = _deviceName +' ' + String(wifiClient.localIP()).c_str();
 			mqttClient.publish("Start", startPayload.c_str());
 			// ... and resubscribe
-			mqttClient.subscribe(_topicSubscribe.c_str()); // подписываемся нв топики для этого устройства
+			mqttClient.subscribe(topicSubscribe.c_str()); // подписываемся на топики для этого устройства
 		}
 		else
 		{
@@ -157,7 +158,7 @@ void ConnectionHelper::handle() {
 }
 
 // Функция получения данных от сервера
-void ConnectionHelper::MqttCallback(char* topic, byte* payload, unsigned int length) {
+void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
