@@ -3,6 +3,8 @@
  Created:	12/8/2018 6:21:40 PM
  Author:	rodal
 */
+#include <Secret.h>
+
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
@@ -10,11 +12,33 @@
 #include <string>
 using namespace std;
 
+//***Блок переменных
+const char* ssid = WI_FI_SSID;
+const char* wifiPass = WI_FI_PASSWORD;
+const char* mqttServer = MQTT_SERVER;
+const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const char* mqttUser = MQTT_USER;
+const char* mqttPass = MQTT_PASSWORD;
+
+const string deviceName = "switch4";
+
+const int buttonPin = 14; //-1 - нет физической кнопки
+const int mainPin = 12;
+
+boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
+
+RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
+RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
+RBD::Timer lockTimer(30); // защита от дребезга
+RBD::Timer lockTimer2(90); // защита от дребезга
+//**
+
+
 class ConnectionHelper {
 public:
 	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
 	void handle();
-
+	void MqttCallback(char* topic, byte* payload, unsigned int length);
 	RBD::Timer reconnectTimer; //пауза между реконнектами Wi-Fi
 
 	WiFiClient wifiClient;
@@ -53,6 +77,10 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const
 
 	WiFiClient wifiClient;
 	PubSubClient mqttClient(wifiClient);
+	//Mqtt setup
+	mqttClient.setServer(_mqttServer, _mqttPort);
+	mqttClient.setCallback(MqttCallback);
+
 
 	_topicSubscribe = _baseTopic + "/" + _deviceName + "/#";		// home/switches/switch5/#
 }
@@ -128,47 +156,54 @@ void ConnectionHelper::handle() {
 
 }
 
-
-class MqttButton {
-public:
-	MqttButton(byte relayPin, byte buttonPin, string string);
-private:
-	byte _relayPin;
-	byte _buttonPin;
-	string deviceName;
-	WiFiClient wifiClient;
-	PubSubClient mqttClient;
-
-
-};
-
-MqttButton::MqttButton(byte relayPin, byte buttonPin, string deviceName) {
-	_relayPin = relayPin;
-	_buttonPin = buttonPin;
-	deviceName = deviceName;
-
-	pinMode(_relayPin, OUTPUT);
+// Функция получения данных от сервера
+void ConnectionHelper::MqttCallback(char* topic, byte* payload, unsigned int length) {
+	Serial.print("MQTT message arrived [");
+	Serial.print(topic);
+	Serial.print("] ");
+	for (int i = 0; i < length; i++) {
+		Serial.print((char)payload[i]);
+	}
+	Serial.println();
 
 }
 
 
+//class MqttButton {
+//public:
+//	MqttButton(byte relayPin, byte buttonPin, string string);
+//private:
+//	byte _relayPin;
+//	byte _buttonPin;
+//	string deviceName;
+//	WiFiClient wifiClient;
+//	PubSubClient mqttClient;
+//
+//
+//};
+//
+//MqttButton::MqttButton(byte relayPin, byte buttonPin, string deviceName) {
+//	_relayPin = relayPin;
+//	_buttonPin = buttonPin;
+//	deviceName = deviceName;
+//
+//	pinMode(_relayPin, OUTPUT);
+//
+//}
 
 
+
+ConnectionHelper helper(ssid, wifiPass, mqttServer, mqttPort, mqttUser, mqttPass, "switch97");
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
-	pinMode(14, OUTPUT);
 
-	digitalWrite(14, 0);
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-  
-	bool level = digitalRead(13);
-
-	Serial.println(level);
-	delay(500);
+	helper.handle();
 
 }
+
