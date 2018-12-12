@@ -50,7 +50,7 @@ bool debug = true;
 
 volatile bool lock = false;
 volatile boolean rState = false; // В прерываниях всегда используем тип volatile для изменяемых переменных
-volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
+volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);

@@ -51,6 +51,7 @@ private:
 	string _baseTopic = "home/switches";
 
 
+
 };
 
 

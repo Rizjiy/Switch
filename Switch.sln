@@ -27,7 +27,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckFlashConfig", "Utils\C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Beta\Test\Test.vcxproj", "{72A4D9FC-3C73-476D-AF5B-4943B3D68809}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibraryProj", "LibraryProj\LibraryProj.vcxitems", "{F446DB43-9164-4130-B6B6-586CA26F85EA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibraryProj", "LibraryProj\LibraryProj.vcxproj", "{4D6DC568-F676-4DE5-93EF-208723DA5177}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +75,10 @@ Global
 		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Debug|x86.Build.0 = Debug|Win32
 		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Release|x86.ActiveCfg = Release|Win32
 		{72A4D9FC-3C73-476D-AF5B-4943B3D68809}.Release|x86.Build.0 = Release|Win32
+		{4D6DC568-F676-4DE5-93EF-208723DA5177}.Debug|x86.ActiveCfg = Debug|Win32
+		{4D6DC568-F676-4DE5-93EF-208723DA5177}.Debug|x86.Build.0 = Debug|Win32
+		{4D6DC568-F676-4DE5-93EF-208723DA5177}.Release|x86.ActiveCfg = Release|Win32
+		{4D6DC568-F676-4DE5-93EF-208723DA5177}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
