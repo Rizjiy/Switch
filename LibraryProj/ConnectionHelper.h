@@ -1,12 +1,12 @@
 /*
- Name:		MqttHelper.h
+ Name:		ConnectionHelper.h
  Created:	12/11/2018 12:30:47 PM
  Author:	lukich
  Editor:	http://www.visualmicro.com
 */
 
-#ifndef _MqttHelper_h
-#define _MqttHelper_h
+#ifndef _ConnectionHelper_h
+#define _ConnectionHelper_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
@@ -22,9 +22,9 @@
 #include <string>
 using namespace std;
 
-class MqttHelper {
+class ConnectionHelper {
 public:
-	MqttHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
+	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
 	void handle();
 	//std::function<void(char*, uint8_t*, unsigned int)> MqttCallback;
 	static void MqttCallback(char* topic, byte* payload, unsigned int length);

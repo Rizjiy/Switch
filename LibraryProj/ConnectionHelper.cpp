@@ -1,11 +1,11 @@
 /*
- Name:		MqttHelper.cpp
+ Name:		ConnectionHelper.cpp
  Created:	12/11/2018 12:30:47 PM
  Author:	lukich
  Editor:	http://www.visualmicro.com
 */
 
-#include "MqttHelper.h"
+#include "ConnectionHelper.h"
 #include "Arduino.h"
 
 #include <RBD_Timer.h>
@@ -16,7 +16,7 @@
 using namespace std;
 
 
-MqttHelper::MqttHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName)
+ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName)
 	:wifiClient(), mqttClient(wifiClient)
 {
 	_ssid = ssid;
@@ -38,7 +38,7 @@ MqttHelper::MqttHelper(const char* ssid, const char* wifiPass, const char* mqttS
 	topicSubscribe = _baseTopic + "/" + _deviceName + "/#";		// home/switches/switch5/#
 }
 
-bool MqttHelper::wifiConnect()
+bool ConnectionHelper::wifiConnect()
 {
 	if (WiFi.status() != WL_CONNECTED) {
 		Serial.print("Connecting to ");
@@ -54,7 +54,7 @@ bool MqttHelper::wifiConnect()
 	return true;
 }
 
-bool MqttHelper::mqttConnect()
+bool ConnectionHelper::mqttConnect()
 {
 	// Loop until we're reconnected
 	if (!mqttClient.connected())
@@ -84,7 +84,7 @@ bool MqttHelper::mqttConnect()
 	return true;
 }
 
-void MqttHelper::handle() {
+void ConnectionHelper::handle() {
 
 	// подключаемся к wi-fi
 	if (reconnectTimer.isExpired())
@@ -110,7 +110,7 @@ void MqttHelper::handle() {
 }
 
 // Функция получения данных от сервера
-void MqttHelper::MqttCallback(char* topic, byte* payload, unsigned int length) {
+void ConnectionHelper::MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
