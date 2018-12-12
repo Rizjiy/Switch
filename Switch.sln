@@ -25,9 +25,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Switch1DimmableSender", "Be
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckFlashConfig", "Utils\CheckFlashConfig\CheckFlashConfig.vcxproj", "{65BB4A8D-00FE-4EAF-91F5-537BA1FE65D7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MqttSwitch", "MqttSwitch\MqttSwitch.vcxitems", "{6D029504-18AB-4872-88CE-E14631FC35E8}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Beta\Test\Test.vcxproj", "{72A4D9FC-3C73-476D-AF5B-4943B3D68809}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibraryProj", "LibraryProj\LibraryProj.vcxitems", "{F446DB43-9164-4130-B6B6-586CA26F85EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

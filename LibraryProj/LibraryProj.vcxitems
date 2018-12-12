@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <ItemsProjectGuid>{6d029504-18ab-4872-88ce-e14631fc35e8}</ItemsProjectGuid>
+    <ItemsProjectGuid>{f446db43-9164-4130-b6b6-586ca26f85ea}</ItemsProjectGuid>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -15,13 +15,15 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="$(MSBuildThisFileDirectory)readme.txt" />
-	<Text Include="$(MSBuildThisFileDirectory)library.properties" />
-  	<Text Include="$(MSBuildThisFileDirectory)MqttSwitch.h" />
-  </ItemGroup>
- <ItemGroup>
-    <!-- <ClInclude Include="$(MSBuildThisFileDirectory)MqttSwitch.h" /> -->
+    <Text Include="$(MSBuildThisFileDirectory)library.properties" />
+    <Text Include="$(MSBuildThisFileDirectory)LibraryProj.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)MqttSwitch.cpp" />
+    <!-- <ClInclude Include="$(MSBuildThisFileDirectory)LibraryProj.h" /> -->
+    <ClInclude Include="$(MSBuildThisFileDirectory)MqttHelper.h" />
   </ItemGroup>
-  </Project>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)LibraryProj.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)MqttHelper.cpp" />
+  </ItemGroup>
+</Project>
