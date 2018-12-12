@@ -12,6 +12,8 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
+#include <functional>
+#include <iostream>
 #include <string>
 using namespace std;
 
@@ -32,7 +34,14 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const
 
 	//Mqtt setup
 	mqttClient.setServer(mqttServer, mqttPort);
-	mqttClient.setCallback(MqttCallback);
+
+	//MQTT_CALLBACK_SIGNATURE = std::bind(&ConnectionHelper::MqttCallback, std::ref(*this), std::placeholders::_1);
+
+	//function<void(char*, uint8_t*, unsigned int)> *ptr = &MqttCallback;
+
+	MQTT_CALLBACK_SIGNATURE = (std::function<void(char*, uint8_t*, unsigned int)>) (MqttCallback);
+
+	mqttClient.setCallback(callback);
 
 
 	topicSubscribe = _baseTopic + "/" + _deviceName + "/#";		// home/switches/switch5/#

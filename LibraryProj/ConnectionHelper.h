@@ -27,7 +27,7 @@ public:
 	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
 	void handle();
 	//std::function<void(char*, uint8_t*, unsigned int)> MqttCallback;
-	static void MqttCallback(char* topic, byte* payload, unsigned int length);
+	void MqttCallback(char* topic, byte* payload, unsigned int length);
 
 	RBD::Timer reconnectTimer; //пауза между реконнектами Wi-Fi
 
