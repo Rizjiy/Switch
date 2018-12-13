@@ -12,7 +12,7 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-#include <functional>
+//#include <functional>
 //#include <iostream>
 #include <string>
 using namespace std;
@@ -35,16 +35,10 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const
 	//Mqtt setup
 	mqttClient.setServer(mqttServer, mqttPort);
 
-	//MQTT_CALLBACK_SIGNATURE = std::bind(&ConnectionHelper::MqttCallback, std::ref(*this), std::placeholders::_1);
-
-	//function<void(char*, uint8_t*, unsigned int)> *ptr = &MqttCallback;
-
-	//MQTT_CALLBACK_SIGNATURE = (std::function<void(char*, uint8_t*, unsigned int)>) (MqttCallback);
-
+	//подписываем callback таким вот хитрым способом
 	MQTT_CALLBACK_SIGNATURE(
 		[this](char* topic, byte* payload, unsigned int length)
 	{
-		Serial.print(_mqttServer);
 		Serial.print("MQTT message arrived [");
 		Serial.print(topic);
 		Serial.print("] ");
@@ -134,6 +128,7 @@ void ConnectionHelper::handle() {
 
 // Функция получения данных от сервера
 void ConnectionHelper::MqttCallback(char* topic, byte* payload, unsigned int length) {
+	Serial.println(_mqttServer);
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
