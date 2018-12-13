@@ -13,7 +13,7 @@
 #include <PubSubClient.h>
 
 #include <functional>
-#include <iostream>
+//#include <iostream>
 #include <string>
 using namespace std;
 
@@ -39,7 +39,21 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const
 
 	//function<void(char*, uint8_t*, unsigned int)> *ptr = &MqttCallback;
 
-	MQTT_CALLBACK_SIGNATURE = (std::function<void(char*, uint8_t*, unsigned int)>) (MqttCallback);
+	//MQTT_CALLBACK_SIGNATURE = (std::function<void(char*, uint8_t*, unsigned int)>) (MqttCallback);
+
+	MQTT_CALLBACK_SIGNATURE(
+		[this](char* topic, byte* payload, unsigned int length)
+	{
+		Serial.print(_mqttServer);
+		Serial.print("MQTT message arrived [");
+		Serial.print(topic);
+		Serial.print("] ");
+		for (int i = 0; i < length; i++) {
+			Serial.print((char)payload[i]);
+		}
+		Serial.println();
+	}
+	);
 
 	mqttClient.setCallback(callback);
 
