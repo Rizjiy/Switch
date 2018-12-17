@@ -11,29 +11,45 @@
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include "MqttButton.h"
 
-//#include <functional>
-//#include <iostream>
 #include <string>
 using namespace std;
+//ConnectionHelper::ConnectionHelper() {}
+//
+//ConnectionHelper::ConnectionHelper(string deviceName)
+//{
+//	this->deviceName = deviceName;
+//}
 
 
-ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName)
-	:wifiClient(), mqttClient(wifiClient)
+ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, PubSubClient& mqttClient, const char* mqttUser, const char* mqttPass, string deviceName)
 {
-	_ssid = ssid;
-	_wifiPass = wifiPass;
-	_mqttServer = mqttServer;
-	_mqttPort = mqttPort;
-	_mqttUser = mqttUser;
-	_mqttPass = mqttPass;
+	this->ssid = ssid;
+	this->wifiPass = wifiPass;
+	this->deviceName = deviceName;
 
-	_deviceName = deviceName;
-
-	RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
+	this->mqttClient = mqttClient;
+	this->mqttUser = mqttUser;
+	this->mqttPass = mqttPass;
 
 	//Mqtt setup
-	mqttClient.setServer(mqttServer, mqttPort);
+	/*WiFiClient wclient;
+	mqttClient.setClient(wclient);
+	mqttClient.setServer(mqttServer, mqttPort);*/
+
+}
+
+void ConnectionHelper::setup()
+{
+	_reconnectTimer.setTimeout(reconnectTimeout);
+
+	//if (!&mqttClient)
+	//{
+	//	Serial.println("create mqttClient");
+	//	WiFiClient wclient;
+	//	PubSubClient mqttclient(mqttServer, mqttPort, wclient);
+	//}
 
 	//подписываем callback таким вот хитрым способом
 	MQTT_CALLBACK_SIGNATURE(
@@ -51,17 +67,17 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, const
 
 	mqttClient.setCallback(callback);
 
+	topicSubscribe = topicBase + "/" + deviceName + "/#";		// home/switches/switch5/#
 
-	topicSubscribe = _baseTopic + "/" + _deviceName + "/#";		// home/switches/switch5/#
 }
 
 bool ConnectionHelper::wifiConnect()
 {
 	if (WiFi.status() != WL_CONNECTED) {
 		Serial.print("Connecting to ");
-		Serial.print(_ssid);
+		Serial.print(WiFi.SSID());
 		Serial.println("...");
-		WiFi.begin(_ssid, _wifiPass);
+		WiFi.begin(ssid, wifiPass);
 
 		if (WiFi.waitForConnectResult() != WL_CONNECTED)
 			return false;
@@ -77,16 +93,14 @@ bool ConnectionHelper::mqttConnect()
 	if (!mqttClient.connected())
 	{
 		Serial.print("Attempting MQTT connection to ");
-		Serial.print(_mqttServer);
+		Serial.print(mqttServer);
 		Serial.println("...");
 		// Attempt to connect
-		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
-		if (mqttClient.connect(_deviceName.c_str(), _mqttUser, _mqttPass))
+		if (mqttClient.connect(deviceName.c_str(), mqttUser, mqttPass))
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			string startPayload = _deviceName + ' ' + String(wifiClient.localIP()).c_str();
-			mqttClient.publish("Start", startPayload.c_str());
+			mqttClient.publish("Start", deviceName.c_str());
 			// ... and resubscribe
 			mqttClient.subscribe(topicSubscribe.c_str()); // подписываемся на топики для этого устройства
 		}
@@ -104,7 +118,7 @@ bool ConnectionHelper::mqttConnect()
 void ConnectionHelper::handle() {
 
 	// подключаемся к wi-fi
-	if (reconnectTimer.isExpired())
+	if (_reconnectTimer.isExpired())
 	{
 		if (wifiConnect())
 			if (mqttConnect())
@@ -114,27 +128,30 @@ void ConnectionHelper::handle() {
 			}
 			else
 			{
-				reconnectTimer.restart();
+				_reconnectTimer.restart();
 				//Mqtt не подключился
 			}
 		else
 		{
-			reconnectTimer.restart();
+			_reconnectTimer.restart();
 			//Wi-fi не подключился
 		}
 	}
 
 }
 
-// Функция получения данных от сервера
-void ConnectionHelper::MqttCallback(char* topic, byte* payload, unsigned int length) {
-	Serial.println(_mqttServer);
-	Serial.print("MQTT message arrived [");
-	Serial.print(topic);
-	Serial.print("] ");
-	for (int i = 0; i < length; i++) {
-		Serial.print((char)payload[i]);
-	}
-	Serial.println();
+MqttButton* ConnectionHelper::buttons;
 
+void ConnectionHelper::addButton(MqttButton* button)
+{
+	buttons = button;
+
+	if(button->buttonPin>=0)
+		attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachButtonInterrupt, button->levelButton ? FALLING : RISING);
+
+}
+
+void ConnectionHelper::attachButtonInterrupt()
+{
+	return buttons->interruptButtton();
 }

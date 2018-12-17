@@ -5,44 +5,60 @@
 #include <string>
 using namespace std;
 
-MqttButton::MqttButton(byte buttonPin, byte relayPin, string deviceName) 
-	:lockTimer(30), lockTimer2(90)
+MqttButton::MqttButton(byte relayPin, byte buttonPin, string deviceName, bool levelButton)
 {
-
 	this->buttonPin = buttonPin;
 	this->relayPin = relayPin;
 	this->deviceName = deviceName;
+	this->levelButton = levelButton;
+}
 
+void MqttButton::setup()
+{
 	pinMode(this->relayPin, OUTPUT);
 
-	//if (this->buttonPin >= 0)
-	//	attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
+	_lockTimer.setTimeout(lockTimout);
+	_lockTimer2.setTimeout(lockTimout2);
 
+	////подключаем прерывания
+	//if (buttonPin >= 0) {
+	//	//std::function<void()> callback(
+	//	auto callback =
+	//		[](int buttonPin)
+	//	{
+	//		Serial.print("button pin: ");
+	//		Serial.println(buttonPin);
+	//	}
+	//	;
+
+	//	attachInterrupt(digitalPinToInterrupt(buttonPin), callback, levelButton ? FALLING : RISING);
+
+	//}
 }
 
 // Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
-void MqttButton::Interrupt_WF() {
+void MqttButton::interruptButtton() {
 
 	//Защита от дребезга 
-	if (_lock || !lockTimer2.isExpired())
+	if (_lock || !_lockTimer2.isExpired())
 		return;
 	_lock = true;
-	lockTimer.restart();
-	while (!lockTimer.isExpired())
+	_lockTimer.restart();
+	while (!_lockTimer.isExpired())
 	{
 	}
 
 	if (digitalRead(buttonPin) != levelButton)
 	{
-		OnBtnPress(!_rState);
+		btnPress(!_rState);
 		_flagChange = true;
 	}
 
-	lockTimer2.restart(); // защищаемся от э/м скачков в реле
+	_lockTimer2.restart(); // защищаемся от э/м скачков в реле
 	_lock = false;
 }
 
-void MqttButton::OnBtnPress(bool state)
+void MqttButton::btnPress(bool state)
 {
 	Serial.println("OnBtnPress(" + String(state) + ")");
 

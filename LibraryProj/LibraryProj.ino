@@ -6,6 +6,7 @@
 #include <PubSubClient.h>
 
 #include "ConnectionHelper.h"
+#include "MqttButton.h"
 
 #include <string>
 using namespace std;
@@ -17,11 +18,11 @@ const char* mqttServer = MQTT_SERVER;
 const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
+//
+//const string deviceName = "switch97";
 
-const string deviceName = "switch97";
-
-const int buttonPin = 14; //-1 - нет физической кнопки
-const int mainPin = 12;
+const byte buttonPin = 14; //-1 - нет физической кнопки
+const byte relayPin = 12;
 
 boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
@@ -31,12 +32,29 @@ RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 //**
 
-ConnectionHelper helper(ssid, wifiPass, mqttServer, mqttPort, mqttUser, mqttPass, "switch97");
-
+WiFiClient wclient;
+PubSubClient mqttclient(mqttServer, mqttPort, wclient);
+ConnectionHelper helper(ssid, wifiPass, mqttclient, mqttUser, mqttPass, "switch97");
+MqttButton button1(relayPin, buttonPin, "btn1", LOW);
+//ConnectionHelper helper;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+
+	//helper.ssid = WI_FI_SSID;
+	//helper.wifiPass = WI_FI_PASSWORD;
+	//helper.mqttServer = MQTT_SERVER;
+	//helper.mqttPort = MQTT_PORT;
+	//helper.mqttUser = MQTT_USER;
+	//helper.mqttPass = MQTT_PASSWORD;
+	//helper.deviceName = "switch97";
+	
+	//helper.reconnectTimer = reconnectTimer;
+
+
+	helper.setup();
+	helper.addButton(&button1);
 }
 
 // the loop function runs over and over again until power down or reset

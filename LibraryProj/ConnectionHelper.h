@@ -18,38 +18,39 @@
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include "MqttButton.h"
 
 #include <string>
 using namespace std;
 
 class ConnectionHelper {
 public:
-	ConnectionHelper(const char* ssid, const char* wifiPass, const char* mqttServer, const int mqttPort, const char* mqttUser, const char* mqttPass, string deviceName);
+	//ConnectionHelper();
+	//ConnectionHelper(string deviceName);
+	ConnectionHelper(const char* ssid, const char* wifiPass, PubSubClient& mqttClient, const char* mqttUser, const char* mqttPass, string deviceName);
+	void setup();
 	void handle();
-	//std::function<void(char*, uint8_t*, unsigned int)> MqttCallback;
-	void MqttCallback(char* topic, byte* payload, unsigned int length);
+	void addButton(MqttButton* button);
 
-	RBD::Timer reconnectTimer; //пауза между реконнектами Wi-Fi
-
-	WiFiClient wifiClient;
+	const char* ssid;
+	const char* wifiPass;
+	string deviceName;
+	string topicBase = "home/switches";
 	PubSubClient mqttClient;
+	const char* mqttServer;
+	int mqttPort;
+	const char* mqttUser;
+	const char* mqttPass;
 	string topicSubscribe;
+	int reconnectTimeout = 60000; //пауза между реконнектами Wi-Fi mc
 
-
+	static MqttButton* buttons;
+	static void attachButtonInterrupt();
 private:
 	bool wifiConnect();
 	bool mqttConnect();
 
-	const char* _ssid;
-	const char* _wifiPass;
-	const char* _mqttServer;
-	int _mqttPort;
-	const char* _mqttUser;
-	const char* _mqttPass;
-
-	string _deviceName;
-	string _baseTopic = "home/switches";
-
+	RBD::Timer _reconnectTimer;
 
 
 };
