@@ -44,14 +44,20 @@ public:
 	string topicSubscribe;
 	int reconnectTimeout = 60000; //пауза между реконнектами Wi-Fi mc
 
-	static MqttButton* buttons;
-	static void attachButtonInterrupt();
+	static void attachInterrupt1();
+	static void attachInterrupt2();
+	static void attachInterrupt3();
+	static void attachInterrupt4();
+	static void attachInterrupt5();
 private:
 	bool wifiConnect();
 	bool mqttConnect();
+	static void println(string text);
 
 	RBD::Timer _reconnectTimer;
 
+	static MqttButton* _buttons[];
+	static byte _buttonsCount;
 
 };
 

@@ -21,7 +21,8 @@ using namespace std;
 //{
 //	this->deviceName = deviceName;
 //}
-
+MqttButton* ConnectionHelper::_buttons[4]; //макимум кнопок
+byte ConnectionHelper::_buttonsCount = 0;
 
 ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, PubSubClient& mqttClient, const char* mqttUser, const char* mqttPass, string deviceName)
 {
@@ -140,18 +141,64 @@ void ConnectionHelper::handle() {
 
 }
 
-MqttButton* ConnectionHelper::buttons;
-
 void ConnectionHelper::addButton(MqttButton* button)
 {
-	buttons = button;
+	_buttonsCount++;
+	_buttons[_buttonsCount-1] = button;
 
-	if(button->buttonPin>=0)
-		attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachButtonInterrupt, button->levelButton ? FALLING : RISING);
+	println("addButton " + button->deviceName);
 
+	if (button->buttonPin >= 0) 
+	{
+		switch (_buttonsCount)
+		{
+		case 1:
+			attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachInterrupt1, button->levelButton ? FALLING : RISING);
+			break;
+		case 2:
+			attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachInterrupt2, button->levelButton ? FALLING : RISING);
+			break;
+		case 3:
+			attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachInterrupt3, button->levelButton ? FALLING : RISING);
+			break;
+		case 4:
+			attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachInterrupt4, button->levelButton ? FALLING : RISING);
+			break;
+		case 5:
+			attachInterrupt(digitalPinToInterrupt(button->buttonPin), attachInterrupt5, button->levelButton ? FALLING : RISING);
+			break;
+
+		}
+	}
 }
 
-void ConnectionHelper::attachButtonInterrupt()
+void ConnectionHelper::attachInterrupt1()
 {
-	return buttons->interruptButtton();
+	return _buttons[0]->interruptButtton();
+}
+
+void ConnectionHelper::attachInterrupt2()
+{
+	return _buttons[1]->interruptButtton();
+}
+
+void ConnectionHelper::attachInterrupt3()
+{
+	return _buttons[2]->interruptButtton();
+}
+
+void ConnectionHelper::attachInterrupt4()
+{
+	return _buttons[3]->interruptButtton();
+}
+
+void ConnectionHelper::attachInterrupt5()
+{
+	return _buttons[4]->interruptButtton();
+}
+
+
+void ConnectionHelper::println(string text)
+{
+	Serial.println(text.c_str());
 }

@@ -24,6 +24,10 @@ const char* mqttPass = MQTT_PASSWORD;
 const byte buttonPin = 14; //-1 - нет физической кнопки
 const byte relayPin = 12;
 
+const byte button2Pin = 13; //-1 - нет физической кнопки
+const byte relay2Pin = 12;
+
+
 boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
 RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
@@ -36,6 +40,7 @@ WiFiClient wclient;
 PubSubClient mqttclient(mqttServer, mqttPort, wclient);
 ConnectionHelper helper(ssid, wifiPass, mqttclient, mqttUser, mqttPass, "switch97");
 MqttButton button1(relayPin, buttonPin, "btn1", LOW);
+MqttButton button2(relay2Pin, button2Pin, "btn2", LOW);
 //ConnectionHelper helper;
 
 // the setup function runs once when you press reset or power the board
@@ -55,6 +60,7 @@ void setup() {
 
 	helper.setup();
 	helper.addButton(&button1);
+	helper.addButton(&button2);
 }
 
 // the loop function runs over and over again until power down or reset

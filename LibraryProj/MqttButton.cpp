@@ -60,7 +60,7 @@ void MqttButton::interruptButtton() {
 
 void MqttButton::btnPress(bool state)
 {
-	Serial.println("OnBtnPress(" + String(state) + ")");
+	Serial.println((deviceName + ' ' + "OnBtnPress(" + String(state).c_str() + ")").c_str());
 
 	digitalWrite(relayPin, state);
 
