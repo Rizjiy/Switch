@@ -9,20 +9,22 @@
 	#include "WProgram.h"
 #endif
 
+//#include "ConnectionHelper.h"
 #include <RBD_Timer.h>
 #include <string>
 using namespace std;
 
 class MqttButton {
 public:
-	MqttButton(byte relayPin, byte buttonPin, string deviceName, bool levelButton);
+	MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton);
 	void interruptButtton();
 	void btnPress(bool state);
 	void setup(); 
+	void handle();
 	byte buttonPin = -1; //-1 - нет физической кнопки
 	byte relayPin;
-	string deviceName;
-
+	string buttonName;
+	//ConnectionHelper* connectionHelper;
 	boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
 	int lockTimout = 30;

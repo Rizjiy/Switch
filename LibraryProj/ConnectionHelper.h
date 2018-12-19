@@ -1,9 +1,3 @@
-/*
- Name:		ConnectionHelper.h
- Created:	12/11/2018 12:30:47 PM
- Author:	lukich
- Editor:	http://www.visualmicro.com
-*/
 
 #ifndef _ConnectionHelper_h
 #define _ConnectionHelper_h
@@ -44,11 +38,6 @@ public:
 	string topicSubscribe;
 	int reconnectTimeout = 60000; //пауза между реконнектами Wi-Fi mc
 
-	static void attachInterrupt1();
-	static void attachInterrupt2();
-	static void attachInterrupt3();
-	static void attachInterrupt4();
-	static void attachInterrupt5();
 private:
 	bool wifiConnect();
 	bool mqttConnect();
@@ -58,6 +47,12 @@ private:
 
 	static MqttButton* _buttons[];
 	static byte _buttonsCount;
+	static void attachInterrupt1();
+	static void attachInterrupt2();
+	static void attachInterrupt3();
+	static void attachInterrupt4();
+	static void attachInterrupt5();
+
 
 };
 

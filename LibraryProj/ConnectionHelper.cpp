@@ -1,9 +1,3 @@
-/*
- Name:		ConnectionHelper.cpp
- Created:	12/11/2018 12:30:47 PM
- Author:	lukich
- Editor:	http://www.visualmicro.com
-*/
 
 #include "ConnectionHelper.h"
 #include "Arduino.h"
@@ -12,15 +6,11 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include "MqttButton.h"
+#include <ArduinoOTA.h>
 
 #include <string>
 using namespace std;
-//ConnectionHelper::ConnectionHelper() {}
-//
-//ConnectionHelper::ConnectionHelper(string deviceName)
-//{
-//	this->deviceName = deviceName;
-//}
+
 MqttButton* ConnectionHelper::_buttons[4]; //макимум кнопок
 byte ConnectionHelper::_buttonsCount = 0;
 
@@ -34,23 +24,14 @@ ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, PubSu
 	this->mqttUser = mqttUser;
 	this->mqttPass = mqttPass;
 
-	//Mqtt setup
-	/*WiFiClient wclient;
-	mqttClient.setClient(wclient);
-	mqttClient.setServer(mqttServer, mqttPort);*/
-
 }
 
 void ConnectionHelper::setup()
 {
-	_reconnectTimer.setTimeout(reconnectTimeout);
+	ArduinoOTA.setHostname(deviceName.c_str());
+	ArduinoOTA.begin();
 
-	//if (!&mqttClient)
-	//{
-	//	Serial.println("create mqttClient");
-	//	WiFiClient wclient;
-	//	PubSubClient mqttclient(mqttServer, mqttPort, wclient);
-	//}
+	_reconnectTimer.setTimeout(reconnectTimeout);
 
 	//подписываем callback таким вот хитрым способом
 	MQTT_CALLBACK_SIGNATURE(
@@ -118,6 +99,8 @@ bool ConnectionHelper::mqttConnect()
 
 void ConnectionHelper::handle() {
 
+	ArduinoOTA.handle();
+
 	// подключаемся к wi-fi
 	if (_reconnectTimer.isExpired())
 	{
@@ -145,8 +128,9 @@ void ConnectionHelper::addButton(MqttButton* button)
 {
 	_buttonsCount++;
 	_buttons[_buttonsCount-1] = button;
+	//button->connectionHelper = this;
 
-	println("addButton " + button->deviceName);
+	println("addButton " + button->buttonName);
 
 	if (button->buttonPin >= 0) 
 	{

@@ -1,15 +1,17 @@
 
 #include "Arduino.h"
 #include "MqttButton.h"
+//#include "ConnectionHelper.h"
 #include <RBD_Timer.h>
 #include <string>
 using namespace std;
+//ConnectionHelper* connectionHelper;
 
-MqttButton::MqttButton(byte relayPin, byte buttonPin, string deviceName, bool levelButton)
+MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton)
 {
 	this->buttonPin = buttonPin;
 	this->relayPin = relayPin;
-	this->deviceName = deviceName;
+	this->buttonName = buttonName;
 	this->levelButton = levelButton;
 }
 
@@ -20,21 +22,18 @@ void MqttButton::setup()
 	_lockTimer.setTimeout(lockTimout);
 	_lockTimer2.setTimeout(lockTimout2);
 
-	////подключаем прерывания
-	//if (buttonPin >= 0) {
-	//	//std::function<void()> callback(
-	//	auto callback =
-	//		[](int buttonPin)
-	//	{
-	//		Serial.print("button pin: ");
-	//		Serial.println(buttonPin);
-	//	}
-	//	;
-
-	//	attachInterrupt(digitalPinToInterrupt(buttonPin), callback, levelButton ? FALLING : RISING);
-
-	//}
 }
+
+void MqttButton::handle()
+{
+	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
+	if (_flagChange) {
+		//PublicPinState(mainPin, true, rState);
+		_flagChange = false;
+	}
+
+}
+
 
 // Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
 void MqttButton::interruptButtton() {
@@ -60,7 +59,7 @@ void MqttButton::interruptButtton() {
 
 void MqttButton::btnPress(bool state)
 {
-	Serial.println((deviceName + ' ' + "OnBtnPress(" + String(state).c_str() + ")").c_str());
+	Serial.println((buttonName + ' ' + "OnBtnPress(" + String(state).c_str() + ")").c_str());
 
 	digitalWrite(relayPin, state);
 
