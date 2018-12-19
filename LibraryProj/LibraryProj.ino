@@ -1,3 +1,5 @@
+#include "ConnectionSettings.h"
+#include "SettingsDto.h"
 #include "MqttButton.h"
 #include <Secret.h>
 
