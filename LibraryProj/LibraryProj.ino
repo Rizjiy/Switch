@@ -1,5 +1,6 @@
-#include "ConnectionSettings.h"
-#include "SettingsDto.h"
+#include "home_Connection.h"
+#include "home_ConnectionSettings.h"
+#include "home_ConnectionHelper.h"
 #include "MqttButton.h"
 #include <Secret.h>
 
@@ -7,7 +8,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-#include "ConnectionHelper.h"
 #include "MqttButton.h"
 
 #include <string>
@@ -21,9 +21,17 @@ const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-WiFiClient wclient;
-PubSubClient mqttclient(mqttServer, mqttPort, wclient);
-ConnectionHelper helper(ssid, wifiPass, mqttclient, mqttUser, mqttPass, "switch97");
+ConnectionSettings settings(
+	ssid,
+	wifiPass,
+	mqttServer,
+	mqttPort,
+	mqttUser,
+	mqttPass,
+	"switch97"
+);
+
+ConnectionHelper helper(&settings);
 
 MqttButton button1(14, 12, "btn1", LOW);
 MqttButton button2(13, 12, "btn2", LOW);

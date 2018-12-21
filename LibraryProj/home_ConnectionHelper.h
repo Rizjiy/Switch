@@ -8,11 +8,13 @@
 	#include "WProgram.h"
 #endif
 
-#include <Arduino.h>
+#include "home_ConnectionSettings.h"
+#include "MqttButton.h"
+
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include "MqttButton.h"
+
 
 #include <string>
 using namespace std;
@@ -21,20 +23,14 @@ class ConnectionHelper {
 public:
 	//ConnectionHelper();
 	//ConnectionHelper(string deviceName);
-	ConnectionHelper(const char* ssid, const char* wifiPass, PubSubClient& mqttClient, const char* mqttUser, const char* mqttPass, string deviceName);
+	ConnectionHelper(ConnectionSettings* settings);
 	void setup();
 	void handle();
 	void addButton(MqttButton* button);
 
-	const char* ssid;
-	const char* wifiPass;
-	string deviceName;
-	string topicBase = "home/switches";
+	ConnectionSettings* settings;
+	WiFiClient wclient;
 	PubSubClient mqttClient;
-	const char* mqttServer;
-	int mqttPort;
-	const char* mqttUser;
-	const char* mqttPass;
 	string topicSubscribe;
 	int reconnectTimeout = 60000; //пауза между реконнектами Wi-Fi mc
 

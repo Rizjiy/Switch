@@ -1,11 +1,12 @@
 
-#include "ConnectionHelper.h"
-#include "Arduino.h"
+#include "home_ConnectionHelper.h"
+#include "home_ConnectionSettings.h"
+#include "MqttButton.h"
 
+#include "Arduino.h"
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include "MqttButton.h"
 #include <ArduinoOTA.h>
 
 #include <string>
@@ -14,21 +15,22 @@ using namespace std;
 MqttButton* ConnectionHelper::_buttons[4]; //макимум кнопок
 byte ConnectionHelper::_buttonsCount = 0;
 
-ConnectionHelper::ConnectionHelper(const char* ssid, const char* wifiPass, PubSubClient& mqttClient, const char* mqttUser, const char* mqttPass, string deviceName)
+ConnectionHelper::ConnectionHelper(ConnectionSettings* settings)
+	:wclient(), mqttClient(settings->mqttServer, settings->mqttPort, wclient)
 {
-	this->ssid = ssid;
-	this->wifiPass = wifiPass;
-	this->deviceName = deviceName;
+	this->settings = settings;
 
-	this->mqttClient = mqttClient;
-	this->mqttUser = mqttUser;
-	this->mqttPass = mqttPass;
+	//почему-то не получилось создать здесь :(
+	//WiFiClient wclient;
+	//mqttClient = new PubSubClient(settings->mqttServer, settings->mqttPort, wclient);
+
+
 
 }
 
 void ConnectionHelper::setup()
 {
-	ArduinoOTA.setHostname(deviceName.c_str());
+	ArduinoOTA.setHostname(settings->deviceName.c_str());
 	ArduinoOTA.begin();
 
 	_reconnectTimer.setTimeout(reconnectTimeout);
@@ -49,7 +51,7 @@ void ConnectionHelper::setup()
 
 	mqttClient.setCallback(callback);
 
-	topicSubscribe = topicBase + "/" + deviceName + "/#";		// home/switches/switch5/#
+	topicSubscribe = settings->topicBase + "/" + settings->deviceName + "/#";		// home/switches/switch5/#
 
 }
 
@@ -57,9 +59,9 @@ bool ConnectionHelper::wifiConnect()
 {
 	if (WiFi.status() != WL_CONNECTED) {
 		Serial.print("Connecting to ");
-		Serial.print(WiFi.SSID());
+		Serial.print(settings->ssid);
 		Serial.println("...");
-		WiFi.begin(ssid, wifiPass);
+		WiFi.begin(settings->ssid, settings->wifiPass);
 
 		if (WiFi.waitForConnectResult() != WL_CONNECTED)
 			return false;
@@ -75,14 +77,14 @@ bool ConnectionHelper::mqttConnect()
 	if (!mqttClient.connected())
 	{
 		Serial.print("Attempting MQTT connection to ");
-		Serial.print(mqttServer);
+		Serial.print(settings->mqttServer);
 		Serial.println("...");
 		// Attempt to connect
-		if (mqttClient.connect(deviceName.c_str(), mqttUser, mqttPass))
+		if (mqttClient.connect(settings->deviceName.c_str(), settings->mqttUser, settings->mqttPass))
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			mqttClient.publish("Start", deviceName.c_str());
+			mqttClient.publish("Start", settings->deviceName.c_str());
 			// ... and resubscribe
 			mqttClient.subscribe(topicSubscribe.c_str()); // подписываемся на топики для этого устройства
 		}
