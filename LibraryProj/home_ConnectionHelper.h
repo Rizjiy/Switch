@@ -9,7 +9,8 @@
 #endif
 
 #include "home_ConnectionSettings.h"
-#include "MqttButton.h"
+#include "home_MqttButton.h"
+#include "home_Sender.h"
 
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
@@ -21,13 +22,12 @@ using namespace std;
 
 class ConnectionHelper {
 public:
-	//ConnectionHelper();
-	//ConnectionHelper(string deviceName);
 	ConnectionHelper(ConnectionSettings* settings);
 	void setup();
 	void handle();
 	void addButton(MqttButton* button);
 
+	Sender sender;
 	ConnectionSettings* settings;
 	WiFiClient wclient;
 	PubSubClient mqttClient;

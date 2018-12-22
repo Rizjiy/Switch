@@ -114,12 +114,14 @@
   <ItemGroup>
     <ClCompile Include="home_ConnectionHelper.cpp" />
     <ClCompile Include="home_ConnectionSettings.cpp" />
-    <ClCompile Include="MqttButton.cpp" />
+    <ClCompile Include="home_MqttButton.cpp" />
+    <ClCompile Include="home_Sender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="home_ConnectionHelper.h" />
     <ClInclude Include="home_ConnectionSettings.h" />
-    <ClInclude Include="MqttButton.h" />
+    <ClInclude Include="home_MqttButton.h" />
+    <ClInclude Include="home_Sender.h" />
     <ClInclude Include="__vm\.LibraryProj.vsarduino.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

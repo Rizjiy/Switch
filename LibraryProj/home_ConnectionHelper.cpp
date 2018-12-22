@@ -1,7 +1,8 @@
 
 #include "home_ConnectionHelper.h"
 #include "home_ConnectionSettings.h"
-#include "MqttButton.h"
+#include "home_MqttButton.h"
+#include "home_Sender.h"
 
 #include "Arduino.h"
 #include <RBD_Timer.h>
@@ -16,7 +17,8 @@ MqttButton* ConnectionHelper::_buttons[4]; //макимум кнопок
 byte ConnectionHelper::_buttonsCount = 0;
 
 ConnectionHelper::ConnectionHelper(ConnectionSettings* settings)
-	:wclient(), mqttClient(settings->mqttServer, settings->mqttPort, wclient)
+	:wclient(), mqttClient(settings->mqttServer, settings->mqttPort, wclient),
+	sender(mqttClient)
 {
 	this->settings = settings;
 
