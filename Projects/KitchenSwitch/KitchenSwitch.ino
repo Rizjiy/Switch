@@ -25,7 +25,7 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"switch97"
+	"KitchenSwitch"
 );
 
 ConnectionHelper helper(&settings);
