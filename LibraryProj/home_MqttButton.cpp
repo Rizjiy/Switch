@@ -30,7 +30,7 @@ void MqttButton::handle()
 {
 	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
 	if (_flagChange) {
-		delay(10);
+		//delay(10);
 		bool curState = getState();
 
 		//состояние кнопки

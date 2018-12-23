@@ -25,12 +25,12 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"KitchenSwitch"
+	"kitchen"
 );
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(13, 14, "btn1", LOW);
+MqttButton button1(13, 14, "btn1", HIGH);
 
 
 // the setup function runs once when you press reset or power the board
