@@ -6,7 +6,6 @@
 #include <RBD_Timer.h>
 #include <string>
 using namespace std;
-//ConnectionHelper* connectionHelper;
 
 MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton)
 {
@@ -29,8 +28,16 @@ void MqttButton::handle()
 {
 	// ƒл€ прерывани€. ≈сли запущен флаг, то публикуем состо€ние на брокер
 	if (_flagChange) {
-		Serial.println("_flagChange = true");
-		_sender->publish(_publishTopics[0], String(_rState).c_str(), false);
+		
+		bool curState = getState();
+
+		//состо€ние кнопки
+		_sender->publish(topicSwitchState, curState, true);
+
+		//отсылаем все топики
+		for(int i=0; i<_publishTopics.size();i++)
+			_sender->publish(_publishTopics[i], curState, false);
+
 		_flagChange = false;
 	}
 
@@ -51,7 +58,7 @@ void MqttButton::interruptButtton() {
 
 	if (digitalRead(buttonPin) != levelButton)
 	{
-		btnPress(!_rState);
+		btnPress(!getState());
 		_flagChange = true;
 	}
 
@@ -59,11 +66,27 @@ void MqttButton::interruptButtton() {
 	_lock = false;
 }
 
-void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) {
+void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) 
+{
+	bool val = false;
+	if (payload[0] == '1')
+		val = true;
+	else
+		val = false;
 
-
-
-
+	if (strcmp(topic, topicSwitch.c_str()) == 0)
+	{
+		// включаем или выключаем реле в зависимоти от полученных значений данных
+		btnPress(val);
+		_sender->publish(topicSwitchState, getState(), true);
+	}
+	else if (strcmp(topic, topicSwitchState.c_str()) == 0)
+	{
+		//обновл€ем статус других устройств, фактическим состо€нием выключател€
+		bool curState = getState();
+		if (val != curState)
+			_sender->publish(topicSwitchState, curState, true);
+	}
 }
 
 
@@ -73,8 +96,6 @@ void MqttButton::btnPress(bool state)
 
 	digitalWrite(relayPin, state);
 
-	//мен€ем текущее состо€ние
-	_rState = state;
 }
 
 //добавить publish tipic
@@ -87,4 +108,10 @@ void MqttButton::setSender(Sender& sender)
 {
 	Serial.print("setSender");
 	_sender = &sender;
+}
+
+//читаем текущее состо€ние реле
+bool MqttButton::getState()
+{
+	return digitalRead(relayPin);
 }

@@ -24,11 +24,13 @@ public:
 	void handle();
 	void addTopic(string topic);
 	void setSender(Sender& sender);
+	bool getState();
 	byte buttonPin = -1; //-1 - нет физической кнопки
 	byte relayPin;
 	string buttonName;
-	//ConnectionHelper* connectionHelper;
 	boolean levelButton = HIGH; // —игнал в нормальном состо€нии на кнопке или датчике касани€
+	string topicSwitch; //команда преключени€ реле
+	string topicSwitchState; //команда проверки статуса реле
 
 	int lockTimout = 30;
 	int lockTimout2 = 90;
@@ -37,7 +39,6 @@ private:
 	vector<string> _publishTopics;
 	Sender* _sender;
 	volatile boolean _lock = false;
-	volatile boolean _rState = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
 	volatile boolean _flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать сообщение на брокер
 
 	RBD::Timer _lockTimer; // защита от дребезга до

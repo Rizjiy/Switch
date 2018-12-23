@@ -17,6 +17,14 @@ void Sender::publish(string topic, const char* payload, boolean retained)
 	mqttClient->publish(topic.c_str(), payload, retained);
 }
 
+void Sender::publish(string topic, bool payload, boolean retained)
+{
+	Serial.print("Sender::publish: ");
+	Serial.println(topic.c_str());
+	mqttClient->publish(topic.c_str(), String(payload).c_str(), retained);
+}
+
+
 void Sender::print(string message)
 {
 	Serial.println(message.c_str());
