@@ -94,7 +94,7 @@ void ConnectionHelper::setup()
 		//передаем message в каждую кнопку
 		for (byte i = 0; i < _buttonsCount; i++)
 		{
-			_buttons[i]->handle();
+			_buttons[i]->mqttCallback(topic,payload,length);
 		}
 
 	}

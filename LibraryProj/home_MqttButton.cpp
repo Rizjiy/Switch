@@ -13,12 +13,13 @@ MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName, bool le
 	this->relayPin = relayPin;
 	this->buttonName = buttonName;
 	this->levelButton = levelButton;
+
+	pinMode(this->relayPin, OUTPUT);
+
 }
 
 void MqttButton::setup()
 {
-	pinMode(this->relayPin, OUTPUT);
-
 	_lockTimer.setTimeout(lockTimout);
 	_lockTimer2.setTimeout(lockTimout2);
 
@@ -68,6 +69,8 @@ void MqttButton::interruptButtton() {
 
 void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) 
 {
+	//_sender->print(buttonName + " mqttCallback: " + topic);
+
 	bool val = false;
 	if (payload[0] == '1')
 		val = true;
