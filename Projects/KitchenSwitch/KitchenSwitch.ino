@@ -1,9 +1,12 @@
+/*
+	ѕодсветка кухонной рабочей поверхности
+*/
 #include "home_Sender.h"
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
 #include "home_MqttButton.h"
 #include <Secret.h>
-#include <ArduinoOTA.h>
+
 #include <string>
 using namespace std;
 
@@ -27,18 +30,16 @@ ConnectionSettings settings(
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(14, 12, "btn1", LOW);
-MqttButton button2(13, 12, "btn2", LOW);
-//**
+MqttButton button1(13, 14, "btn1", LOW);
+
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
-
-	helper.addButton(&button1);
-	helper.addButton(&button2);
-
 	helper.setup();
+
+	button1.addTopic("home/switches/switch2/pins/14");
+	helper.addButton(&button1);
 
 }
 
