@@ -10,10 +10,17 @@
 #endif
 #include <PubSubClient.h>
 
+#include <string>
+using namespace std;
+
 class Sender
 {
 public:
 	Sender(PubSubClient& mqttClient);
+	void publish(string topic, const char* payload, boolean retained);
+	void print(string message);
+private:
+	PubSubClient* mqttClient;
 };
 
 #endif

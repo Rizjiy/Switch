@@ -26,35 +26,6 @@ ConnectionHelper::ConnectionHelper(ConnectionSettings* settings)
 	//WiFiClient wclient;
 	//mqttClient = new PubSubClient(settings->mqttServer, settings->mqttPort, wclient);
 
-
-
-}
-
-void ConnectionHelper::setup()
-{
-	ArduinoOTA.setHostname(settings->deviceName.c_str());
-	ArduinoOTA.begin();
-
-	_reconnectTimer.setTimeout(reconnectTimeout);
-
-	//подписываем callback таким вот хитрым способом
-	MQTT_CALLBACK_SIGNATURE(
-		[this](char* topic, byte* payload, unsigned int length)
-	{
-		Serial.print("MQTT message arrived [");
-		Serial.print(topic);
-		Serial.print("] ");
-		for (int i = 0; i < length; i++) {
-			Serial.print((char)payload[i]);
-		}
-		Serial.println();
-	}
-	);
-
-	mqttClient.setCallback(callback);
-
-	topicSubscribe = settings->topicBase + "/" + settings->deviceName + "/#";		// home/switches/switch5/#
-
 }
 
 bool ConnectionHelper::wifiConnect()
@@ -101,6 +72,40 @@ bool ConnectionHelper::mqttConnect()
 	return true;
 }
 
+void ConnectionHelper::setup()
+{
+	ArduinoOTA.setHostname(settings->deviceName.c_str());
+	ArduinoOTA.begin();
+
+	_reconnectTimer.setTimeout(reconnectTimeout);
+
+	//подписываем callback таким вот хитрым способом
+	MQTT_CALLBACK_SIGNATURE(
+		[this](char* topic, byte* payload, unsigned int length)
+	{
+		Serial.print("MQTT message arrived [");
+		Serial.print(topic);
+		Serial.print("] ");
+		for (int i = 0; i < length; i++) {
+			Serial.print((char)payload[i]);
+		}
+		Serial.println();
+
+		//передаем message в каждую кнопку
+		for (byte i = 0; i < _buttonsCount; i++)
+		{
+			_buttons[i]->handle();
+		}
+
+	}
+	);
+
+	mqttClient.setCallback(callback);
+
+	topicSubscribe = settings->topicBase + "/" + settings->deviceName + "/#";		// home/switches/switch5/#
+
+}
+
 void ConnectionHelper::handle() {
 
 	ArduinoOTA.handle();
@@ -126,13 +131,22 @@ void ConnectionHelper::handle() {
 		}
 	}
 
+	//цикл для каждой кнопки
+	for (byte i = 0; i < _buttonsCount; i++)
+	{
+		_buttons[i]->handle();
+	}
+
 }
 
 void ConnectionHelper::addButton(MqttButton* button)
 {
 	_buttonsCount++;
 	_buttons[_buttonsCount-1] = button;
-	//button->connectionHelper = this;
+	button->setSender(sender);
+
+	//Устанавливаем топик по умолчанию
+	button->addTopic(settings->topicBase + "/" + settings->deviceName + "/" + button->buttonName);
 
 	println("addButton " + button->buttonName);
 

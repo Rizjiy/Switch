@@ -1,7 +1,8 @@
 
-#include "Arduino.h"
+//#include "Arduino.h"
 #include "home_MqttButton.h"
-//#include "ConnectionHelper.h"
+#include "home_Sender.h"
+
 #include <RBD_Timer.h>
 #include <string>
 using namespace std;
@@ -28,7 +29,8 @@ void MqttButton::handle()
 {
 	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
 	if (_flagChange) {
-		//PublicPinState(mainPin, true, rState);
+		Serial.println("_flagChange = true");
+		_sender->publish(_publishTopics[0], String(_rState).c_str(), false);
 		_flagChange = false;
 	}
 
@@ -57,6 +59,14 @@ void MqttButton::interruptButtton() {
 	_lock = false;
 }
 
+void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) {
+
+
+
+
+}
+
+
 void MqttButton::btnPress(bool state)
 {
 	Serial.println((buttonName + ' ' + "OnBtnPress(" + String(state).c_str() + ")").c_str());
@@ -65,4 +75,16 @@ void MqttButton::btnPress(bool state)
 
 	//меняем текущее состояние
 	_rState = state;
+}
+
+//добавить publish tipic
+void MqttButton::addTopic(string topic)
+{
+	_publishTopics.push_back(topic);
+}
+
+void MqttButton::setSender(Sender& sender)
+{
+	Serial.print("setSender");
+	_sender = &sender;
 }

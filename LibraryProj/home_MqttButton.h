@@ -9,7 +9,7 @@
 	#include "WProgram.h"
 #endif
 
-//#include "ConnectionHelper.h"
+#include "home_Sender.h"
 #include <RBD_Timer.h>
 #include <string>
 using namespace std;
@@ -17,10 +17,13 @@ using namespace std;
 class MqttButton {
 public:
 	MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton);
-	void interruptButtton();
 	void btnPress(bool state);
+	void interruptButtton();
+	void mqttCallback(char* topic, byte* payload, unsigned int length);
 	void setup(); 
 	void handle();
+	void addTopic(string topic);
+	void setSender(Sender& sender);
 	byte buttonPin = -1; //-1 - нет физической кнопки
 	byte relayPin;
 	string buttonName;
@@ -31,6 +34,8 @@ public:
 	int lockTimout2 = 90;
 
 private:
+	vector<string> _publishTopics;
+	Sender* _sender;
 	volatile boolean _lock = false;
 	volatile boolean _rState = false; // ¬ прерывани€х всегда используем тип volatile дл€ измен€емых переменных
 	volatile boolean _flagChange = false; // ‘лаг нужен дл€ того, чтобы опубликовать сообщение на брокер
