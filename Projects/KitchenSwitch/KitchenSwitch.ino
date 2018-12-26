@@ -38,6 +38,7 @@ void setup() {
 	Serial.begin(115200);
 	helper.setup();
 
+	button1.lockTimout2 = 180;
 	button1.addTopic("home/switches/switch2/pins/14");
 	helper.addButton(&button1);
 
