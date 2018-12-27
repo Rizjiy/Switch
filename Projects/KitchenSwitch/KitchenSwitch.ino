@@ -30,14 +30,14 @@ ConnectionSettings settings(
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(13, 14, "btn1", HIGH);
+MqttButton button1(13, 14, "btn1");
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
 	helper.setup();
-
+	button1.levelButton = HIGH;
 	button1.addTopic("home/switches/plants/btn2");
 	helper.addButton(&button1);
 

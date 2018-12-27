@@ -8,12 +8,11 @@
 #include <string>
 using namespace std;
 
-MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton)
+MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName)
 {
 	this->buttonPin = buttonPin;
 	this->relayPin = relayPin;
 	this->buttonName = buttonName;
-	this->levelButton = levelButton;
 
 	pinMode(this->relayPin, OUTPUT);
 
@@ -23,6 +22,9 @@ void MqttButton::setup()
 {
 	_lockTimer.setTimeout(lockTimout);
 	_lockTimer2.setTimeout(lockTimout2);
+
+	//выключаем реле
+	relaySwitch(LOW);
 
 }
 
@@ -96,8 +98,7 @@ void MqttButton::btnPress(bool state)
 {
 	Serial.println((buttonName + ' ' + "BtnPress(" + String(state).c_str() + ")").c_str());
 
-	digitalWrite(relayPin, state);
-
+	relaySwitch(state);
 }
 
 //добавить publish tipic
@@ -115,4 +116,12 @@ void MqttButton::setSender(Sender& sender)
 bool MqttButton::getState()
 {
 	return digitalRead(relayPin);
+}
+
+void MqttButton::relaySwitch(bool state)
+{
+	if (levelTrigger)
+		digitalWrite(relayPin, state);
+	else
+		digitalWrite(relayPin, !state);
 }

@@ -27,8 +27,8 @@ ConnectionSettings settings(
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(14, 12, "btn1", LOW);
-MqttButton button2(13, 12, "btn2", LOW);
+MqttButton button1(14, 12, "btn1");
+MqttButton button2(13, 12, "btn2");
 //**
 
 // the setup function runs once when you press reset or power the board

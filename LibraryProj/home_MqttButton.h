@@ -17,7 +17,7 @@ using namespace std;
 
 class MqttButton {
 public:
-	MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton);
+	MqttButton(byte buttonPin, byte relayPin, string buttonName);
 	void btnPress(bool state);
 	void interruptButtton();
 	void mqttCallback(char* topic, byte* payload, unsigned int length);
@@ -29,7 +29,8 @@ public:
 	byte buttonPin = -1; //-1 - нет физической кнопки
 	byte relayPin;
 	string buttonName;
-	boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
+	bool levelButton = LOW; // Сигнал в нормальном состоянии на кнопке или датчике касания
+	bool levelTrigger = HIGH; //сигнал срабатывания реле
 	string topicSwitch; //команда преключения реле
 	string topicSwitchState; //команда проверки статуса реле
 
@@ -37,6 +38,7 @@ public:
 	int lockTimout2 = 90;
 
 private:
+	void relaySwitch(bool state);
 	vector<string> _publishTopics;
 	Sender* _sender;
 	volatile boolean _lock = false;
