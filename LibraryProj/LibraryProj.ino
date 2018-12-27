@@ -35,6 +35,9 @@ MqttButton button2(13, 12, "btn2", LOW);
 void setup() {
 	Serial.begin(115200);
 
+	button1.lockTimout = 2000;
+	button1.lockTimout2 = 2000;
+
 	helper.addButton(&button1);
 	helper.addButton(&button2);
 

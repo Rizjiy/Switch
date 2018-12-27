@@ -30,7 +30,7 @@ void MqttButton::handle()
 {
 	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
 	if (_flagChange) {
-		//delay(10);
+		
 		bool curState = getState();
 
 		//состояние кнопки
@@ -48,12 +48,12 @@ void MqttButton::handle()
 
 // Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
 void MqttButton::interruptButtton() {
-
 	//Защита от дребезга 
 	if (_lock || !_lockTimer2.isExpired())
 		return;
 	_lock = true;
 	_lockTimer.restart();
+
 	while (!_lockTimer.isExpired())
 	{
 	}
@@ -70,8 +70,6 @@ void MqttButton::interruptButtton() {
 
 void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) 
 {
-	//_sender->print(buttonName + " mqttCallback: " + topic);
-
 	bool val = false;
 	if (payload[0] == '1')
 		val = true;
@@ -96,7 +94,7 @@ void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length)
 
 void MqttButton::btnPress(bool state)
 {
-	Serial.println((buttonName + ' ' + "OnBtnPress(" + String(state).c_str() + ")").c_str());
+	Serial.println((buttonName + ' ' + "BtnPress(" + String(state).c_str() + ")").c_str());
 
 	digitalWrite(relayPin, state);
 
@@ -110,7 +108,6 @@ void MqttButton::addTopic(string topic)
 
 void MqttButton::setSender(Sender& sender)
 {
-	Serial.print("setSender");
 	_sender = &sender;
 }
 

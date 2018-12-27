@@ -45,7 +45,6 @@ private:
 	RBD::Timer _lockTimer; // защита от дребезга до
 	RBD::Timer _lockTimer2; // защита от дребезга после
 
-
 };
 
 #endif

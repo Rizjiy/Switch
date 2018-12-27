@@ -149,8 +149,6 @@ void ConnectionHelper::addButton(MqttButton* button)
 	button->topicSwitch = settings->topicBase + "/" + settings->deviceName + "/" + button->buttonName;
 	button->topicSwitchState = button->topicSwitch + "/state";
 
-	println("addButton " + button->buttonName);
-
 	if (button->buttonPin >= 0) 
 	{
 		switch (_buttonsCount)
@@ -173,6 +171,8 @@ void ConnectionHelper::addButton(MqttButton* button)
 
 		}
 	}
+
+	button->setup();
 }
 
 void ConnectionHelper::attachInterrupt1()
@@ -198,10 +198,4 @@ void ConnectionHelper::attachInterrupt4()
 void ConnectionHelper::attachInterrupt5()
 {
 	return _buttons[4]->interruptButtton();
-}
-
-
-void ConnectionHelper::println(string text)
-{
-	Serial.println(text.c_str());
 }

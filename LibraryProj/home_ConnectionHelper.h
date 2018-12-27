@@ -37,7 +37,6 @@ public:
 private:
 	bool wifiConnect();
 	bool mqttConnect();
-	static void println(string text);
 
 	RBD::Timer _reconnectTimer;
 
