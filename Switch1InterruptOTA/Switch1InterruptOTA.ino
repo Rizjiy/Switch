@@ -22,10 +22,10 @@ const int mqtt_port = MQTT_PORT; // Порт для подключения к с
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const string deviceName = "switch3";
+const string deviceName = "switch4";
 
-const int buttonPin = 13; //-1 - нет физической кнопки
-const int mainPin = 14;
+const int buttonPin = 14; //-1 - нет физической кнопки
+const int mainPin = 12;
 
 boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
 
@@ -34,6 +34,7 @@ RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забив
 RBD::Timer lockTimer(30); // защита от дребезга
 RBD::Timer lockTimer2(90); // защита от дребезга
 //**
+
 
 
 const string baseTopic = "home/switches";
@@ -49,7 +50,7 @@ bool debug = true;
 
 volatile bool lock = false;
 volatile boolean rState = false; // В прерываниях всегда используем тип volatile для изменяемых переменных
-volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
+volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
