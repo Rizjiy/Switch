@@ -1,5 +1,5 @@
 /*
-	ѕодсветка кухонной рабочей поверхности
+	ѕодсветка растений на кухне и свет над столиком
 */
 #include "home_Sender.h"
 #include "home_ConnectionSettings.h"
@@ -25,12 +25,13 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"kitchen"
+	"plants"
 );
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(13, 14, "btn1", HIGH);
+MqttButton button1(-1, 12, "btn1", HIGH);
+MqttButton button2(-1, 14, "btn2", HIGH);
 
 
 // the setup function runs once when you press reset or power the board
@@ -38,8 +39,8 @@ void setup() {
 	Serial.begin(115200);
 	helper.setup();
 
-	button1.addTopic("home/switches/plants/btn2");
 	helper.addButton(&button1);
+	helper.addButton(&button2);
 
 }
 
