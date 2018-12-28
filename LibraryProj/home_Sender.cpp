@@ -19,9 +19,7 @@ void Sender::publish(string topic, const char* payload, boolean retained)
 void Sender::publish(string topic, bool payload, boolean retained)
 {
 	print("Sender::publish: " + topic + " [" + String(payload).c_str() + "]");
-	const char* lpayload = String(payload).c_str();
-	mqttClient->publish(topic.c_str(), lpayload, retained);
-	//mqttClient->publish(topic.c_str(), "1", retained);
+	mqttClient->publish(topic.c_str(), String(payload).c_str(), retained);
 }
 
 

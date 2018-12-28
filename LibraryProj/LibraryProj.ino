@@ -28,18 +28,17 @@ ConnectionSettings settings(
 ConnectionHelper helper(&settings);
 
 MqttButton button1(14, 12, "btn1");
-MqttButton button2(13, 12, "btn2");
+//MqttButton button2(13, 12, "btn2");
 //**
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
 
-	button1.lockTimout = 2000;
-	button1.lockTimout2 = 2000;
+	button1.levelTrigger = LOW;
 
 	helper.addButton(&button1);
-	helper.addButton(&button2);
+	//helper.addButton(&button2);
 
 	helper.setup();
 

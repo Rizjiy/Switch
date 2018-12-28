@@ -115,7 +115,11 @@ void MqttButton::setSender(Sender& sender)
 //читаем текущее состояние реле
 bool MqttButton::getState()
 {
-	return digitalRead(relayPin);
+	int curState = digitalRead(relayPin);
+	if (levelTrigger)
+		return curState;
+	else
+		return !curState;
 }
 
 void MqttButton::relaySwitch(bool state)
