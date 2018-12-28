@@ -1,56 +1,75 @@
+/*MQTT:
+РІРєР»СЋС‡РёС‚СЊ СЂРµР»Рµ: home/switches/switch5/pins/main payload:1
+СЃС‚Р°С‚СѓСЃ СЂРµР»Рµ: home/switches/switch5/pins/main/state
+СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ РЅР° РїРёРЅ 12: home/switches/switch5/pins/12
+СЃС‚Р°С‚СѓСЃ РЅР° РїРёРЅРµ 12: home/switches/switch5/pins/12/state
+*/
+
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <Secret.h>
 #include <ArduinoOTA.h>
 
-//***Блок переменных
+#include <string>
+using namespace std;
+
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
-const char *mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const char* mqtt_server = MQTT_SERVER;
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
-const char* clientName = "switch5";
-const char *topicSwitch = "home/switches/5";
-const char *topicSwitchState = "home/switches/5/status";
+const string deviceName = "switch4";
 
-const int buttonPin = -1; //-1 - нет физической кнопки
-const int relayPin = 13;
+const int buttonPin = 14; //-1 - РЅРµС‚ С„РёР·РёС‡РµСЃРєРѕР№ РєРЅРѕРїРєРё
+const int mainPin = 12;
 
-boolean levelTrigger = LOW;
-boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
+boolean levelButton = HIGH; // РЎРёРіРЅР°Р» РІ РЅРѕСЂРјР°Р»СЊРЅРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё РЅР° РєРЅРѕРїРєРµ РёР»Рё РґР°С‚С‡РёРєРµ РєР°СЃР°РЅРёСЏ
 
-WiFiClient wclient;
-PubSubClient mqttclient(wclient);
-
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
-RBD::Timer lockTimer(30); // защита от дребезга
-RBD::Timer lockTimer2(90); // защита от дребезга
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
+RBD::Timer debugTimer(3000); //3 sec РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РЅРµ Р·Р°Р±РёРІР°С‚СЊ СЌС„РёСЂ
+RBD::Timer lockTimer(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
+RBD::Timer lockTimer2(90); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 //**
+
+
+
+const string baseTopic = "home/switches";
+const string strState = "state";
+const string strMainPin = "main";
+const string topicSubscribe = baseTopic + "/" + deviceName + "/#";		// home/switches/switch5/#
+const string topicPins = baseTopic + "/" + deviceName + "/pins";			// home/switches/switch5/pins				
+const string topicCmd = baseTopic + "/" + deviceName + "/cmd";			// home/switches/switch5/cmd
+
+const int pinsOut[6] = { 16,14,12,13,15 }; //РґРѕСЃС‚СѓРїРЅС‹Рµ РїРёРЅС‹ РґР»СЏ esp8266
 
 bool debug = true;
 
 volatile bool lock = false;
-volatile boolean rState = false; // В прерываниях всегда используем тип volatile для изменяемых переменных
-volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
+volatile boolean rState = false; // Р’ РїСЂРµСЂС‹РІР°РЅРёСЏС… РІСЃРµРіРґР° РёСЃРїРѕР»СЊР·СѓРµРј С‚РёРї volatile РґР»СЏ РёР·РјРµРЅСЏРµРјС‹С… РїРµСЂРµРјРµРЅРЅС‹С…
+volatile boolean flagChange = false; // Р¤Р»Р°Рі РЅСѓР¶РµРЅ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРїСѓР±Р»РёРєРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ
+
+WiFiClient wclient;
+PubSubClient mqttclient(wclient);
 
 void setup()
 {
 	Serial.begin(115200);
-	ArduinoOTA.setHostname(clientName);
+	ArduinoOTA.setHostname(deviceName.c_str());
 	ArduinoOTA.begin();
 
-	//Начальное значение реле
-	RelaySwitch(false);
+	//РќР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ СЂРµР»Рµ
+	//RelaySwitch(false);
+
+	//СѓСЃС‚Р°РЅРѕРІРёРј СЂРµР¶РёРј output РґР»СЏ РІСЃРµС… СЃРІРѕР±РѕРґРЅС‹С… РїРёРЅРѕРІ
+	SetOutputPins();
 
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
 	mqttclient.setCallback(MqttCallback);
-
-	pinMode(relayPin, OUTPUT);
 
 	if(buttonPin>=0)
 		attachInterrupt(digitalPinToInterrupt(buttonPin), Interrupt_WF, levelButton ? FALLING : RISING);
@@ -64,33 +83,45 @@ void loop()
 {
 	ArduinoOTA.handle();
 
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (reconnectTimer.isExpired())
 	{
 		if (WifiConnect())
 			if (MqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				mqttclient.loop();
 			}
 			else
 			{
 				reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
-	// Если запущен флаг, то публикуем состояние на брокер
+	// Р”Р»СЏ РїСЂРµСЂС‹РІР°РЅРёСЏ. Р•СЃР»Рё Р·Р°РїСѓС‰РµРЅ С„Р»Р°Рі, С‚Рѕ РїСѓР±Р»РёРєСѓРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ
 	if (flagChange) {
-		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
+		PublicPinState(mainPin, true, rState);
+		PublicPinState(mainPin, false, rState);
 		flagChange = false;
 	}
 
+}
+
+void SetOutputPins()
+{
+	for (int i = 0; i < sizeof(pinsOut) / sizeof(pinsOut[0]); ++i)
+	{
+		if (pinsOut[i] == buttonPin)
+			continue;
+
+		pinMode(pinsOut[i], OUTPUT);
+	}
 }
 
 bool WifiConnect()
@@ -119,15 +150,14 @@ bool MqttConnect()
 		Serial.println("...");
 		// Attempt to connect
 		//if (client.connect("ESP8266Client", mqtt_user, mqtt_pass))
-		if (mqttclient.connect(clientName, mqttUser, mqttPass))
+		if (mqttclient.connect(deviceName.c_str(), mqttUser, mqttPass))
 		{
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			mqttclient.publish("Start", clientName);
+			string startPayload = deviceName + ' ' + String(wclient.localIP()).c_str();
+			mqttclient.publish("Start", startPayload.c_str());
 			// ... and resubscribe
-			mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
-			mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
-
+			mqttclient.subscribe(topicSubscribe.c_str()); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅРІ С‚РѕРїРёРєРё РґР»СЏ СЌС‚РѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°
 		}
 		else
 		{
@@ -140,7 +170,7 @@ bool MqttConnect()
 	return true;
 }
 
-// Функция получения данных от сервера
+// Р¤СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕС‚ СЃРµСЂРІРµСЂР°
 void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
@@ -150,31 +180,84 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 	Serial.println();
 
-	bool val = false;
-	if (payload[0] == '1')
-		val = true;
-	else
-		val = false;
 
-	if (strcmp(topic, topicSwitch) == 0)
+	string topicStr(topic);
+
+	if (topicStr.find(topicPins) != -1)
 	{
-		// включаем или выключаем реле в зависимоти от полученных значений данных
-		OnBtnPress(val);
-		mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
-	}
-	else if (strcmp(topic, topicSwitchState) == 0)
-	{
-		//обновляем статус других устройств, фактическим состоянием выключателя
-		if (val != rState)
-			mqttclient.publish(topicSwitchState, String(rState).c_str(), true);
+		//Р·РЅР°С‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ 0 РёР»Рё 1
+		bool val = false;
+		if (payload[0] == '1')
+			val = true;
+		else
+			val = false;
+
+		//РѕС‚СЃРµРєР°РµРј Р±Р°Р·Сѓ 
+		string subTopic;
+		subTopic.assign(topicStr, topicPins.length(), topicStr.length() - topicPins.length());
+		Serial.println("subTopic: " + String(subTopic.c_str()));
+
+		//***РїР°СЂСЃРёРј topic (/main /12 /main/state /12/state)
+		size_t pinStart = subTopic.find("/");
+		size_t stateStart = subTopic.find("/", pinStart + 1);
+
+		size_t pinEnd = stateStart;
+		if (stateStart == string::npos)
+			pinEnd = subTopic.length();
+
+		string pinSection = subTopic.substr(pinStart + 1, pinEnd - pinStart - 1);
+
+		string stateSection;
+		if(stateStart != string::npos)
+			stateSection = subTopic.substr(stateStart + 1, subTopic.length() - 1);
+
+		//Serial.println("pinStart: " + String(pinStart) + " pinEnd: " + String(pinEnd) + " stateStart: " + String(stateStart));
+		Serial.println("pinSection: " + String(pinSection.c_str()) + " stateSection: " + String(stateSection.c_str()));
+
+		bool isMainPin;
+		int pin;
+		if (pinSection == strMainPin)
+		{
+			isMainPin = true;
+			pin = mainPin;
+		}
+		else
+		{
+			isMainPin = false;
+			String strPin = pinSection.c_str();
+			pin = strPin.toInt();
+
+			if(pinSection != "0" && pin == 0)
+				Serial.println("Error! ParseTopic: " + String(subTopic.c_str()));
+
+		}
+
+		bool isState = stateSection == strState;
+		//**
+
+		bool actualPinLevel = digitalRead(pin);
+
+		if (isState)
+		{
+			//РµСЃР»Рё СЌС‚Рѕ СЃС‚РµР№С‚, С‚Рѕ РѕР±РЅРѕРІР»РµРј РµРіРѕ С„Р°РєС‚РёС‡РµСЃРєРёРј Р·РЅР°С‡РµРЅРёРµРј Рё РѕС‚РїСЂР°РІР»СЏРµРј РЅР°Р·Р°Рґ
+			if (val != actualPinLevel)
+				PublicPinState(pin, isMainPin, actualPinLevel);
+		}
+		else
+		{
+			// РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј СЂРµР»Рµ РІ Р·Р°РІРёСЃРёРјРѕС‚Рё РѕС‚ РїРѕР»СѓС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР°РЅРЅС‹С…
+			digitalWrite(pin, val);
+			Serial.println("digitalWrite(" + String(pin) + "," + String(val) + ")");
+			PublicPinState(pin, isMainPin, val);
+		}
 
 	}
 }
 
-// Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
+// Р¤СѓРЅРєС†РёСЏ, РІС‹Р·С‹РІР°РµРјР°СЏ РїСЂРµСЂС‹РІР°РЅРёРµРј, РґР»СЏ РєРЅРѕРїРєРё Р±РµР· С„РёРєСЃР°С†РёРё (button without fixing)
 void Interrupt_WF() {
 
-	//Защита от дребезга 
+	//Р—Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР° 
 	if (lock || !lockTimer2.isExpired())
 		return;
 	lock = true;
@@ -189,7 +272,7 @@ void Interrupt_WF() {
 		flagChange = true;
 	}
 
-	lockTimer2.restart(); // защищаемся от э/м скачков в реле
+	lockTimer2.restart(); // Р·Р°С‰РёС‰Р°РµРјСЃСЏ РѕС‚ СЌ/Рј СЃРєР°С‡РєРѕРІ РІ СЂРµР»Рµ
 	lock = false;
 }
 
@@ -197,27 +280,25 @@ void OnBtnPress(bool state)
 {
 	if (debug)
 	{
-		Serial.print("OnBtnPress(" + String(state) + ")");
+		Serial.println("OnBtnPress(" + String(state) + ")");
 	}
 
-	RelaySwitch(state);
+	digitalWrite(mainPin, state);
 
-	//меняем текущее состояние
+	//РјРµРЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
 	rState = state;
 }
 
-//Щелкаем реле
-void RelaySwitch(bool state)
-{
-	if (levelTrigger)
-		digitalWrite(relayPin, state);
+//РћС‚РїСЂР°РІР»СЏРµС‚ РЅР° СЃРµСЂРІРµСЂ СЃРѕСЃС‚РѕСЏРЅРёРµ С‚РµРєСѓС‰РµРµ Gpio
+void PublicPinState(uint8_t pin, bool isMainPin, bool val) {
+	
+	string topicState;
+	if(isMainPin)
+		topicState = topicPins +"/"+ strMainPin +"/"+ strState;
 	else
-		digitalWrite(relayPin, !state);
+		topicState = topicPins + "/" + String(pin).c_str() + "/" + strState;
+
+	mqttclient.publish(topicState.c_str(), String(val).c_str(), true);
+	Serial.println("MQTT publish: [" + String(topicState.c_str()) + "] " + String(val));
+
 }
-
-
-
-
-
-
-
