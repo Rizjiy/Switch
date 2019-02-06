@@ -4,6 +4,8 @@
 #include <DHT.h>
 #include <ArduinoJson.h>
 #include <Secret.h>
+#include <ArduinoOTA.h>
+
 
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
@@ -29,6 +31,8 @@ bool debug = true;
 void setup() {
 
 	Serial.begin(115200);
+	ArduinoOTA.setHostname(clientName);
+	ArduinoOTA.begin();
 
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
@@ -40,6 +44,8 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() 
 {
+	ArduinoOTA.handle();
+
 	// подключаемся к wi-fi
 	if (!WifiConnect() && !MqttConnect())
 	{
@@ -88,8 +94,8 @@ void loop()
 	delete[] tbuf;
 	delete[] hbuf;
 
-	mqttclient.disconnect();
-	WiFi.disconnect();
+	//mqttclient.disconnect();
+	//WiFi.disconnect();
 
 	//ESP.deepSleep(sleepingTimeSecond * 1000000, WAKE_RF_DEFAULT);
 	//delay(500); // wait for deep sleep to happen
