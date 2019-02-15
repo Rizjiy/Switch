@@ -1,7 +1,6 @@
 /*
 	ѕодсветка кухонной рабочей поверхности
 */
-#include "home_Sender.h"
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
 #include "home_MqttButton.h"

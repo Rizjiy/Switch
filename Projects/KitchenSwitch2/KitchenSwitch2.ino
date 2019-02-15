@@ -1,7 +1,6 @@
 /*
 	ѕодсветка растений на кухне и свет над столиком
 */
-#include "home_Sender.h"
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
 #include "home_MqttButton.h"
