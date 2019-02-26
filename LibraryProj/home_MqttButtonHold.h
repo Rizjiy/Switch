@@ -1,7 +1,7 @@
-// MqttButton.h
+// MqttButtonHold.h
 
-#ifndef _MQTTBUTTON_h
-#define _MQTTBUTTON_h
+#ifndef _MQTTBUTTONHOLD_h
+#define _MQTTBUTTONHOLD_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
@@ -16,14 +16,20 @@
 #include <string>
 using namespace std;
 
-class MqttButton: public MqttButtonBase {
+class MqttButtonHold : public MqttButtonBase {
 public:
-	MqttButton(byte buttonPin, byte relayPin, string buttonName);
+	MqttButtonHold(byte buttonPin, byte relayPin, string buttonName, int holdTimeout);
 	void btnPress() override;
+	void btnPress(int timeout);
 	void mqttCallback(char* topic, byte* payload, unsigned int length) override;
 	void setup() override;
+	void handle() override;
+	int holdTimeout; //время удержания кнопки в сек
+
+private:
 
 };
+
 
 #endif
 
