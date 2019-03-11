@@ -33,9 +33,10 @@ ConnectionSettings settings(
 ConnectionHelper helper(&settings);
 
 DHT dht(5, DHT22);
-const int sleepingTimeSecond = 30; //сколько спать
+const int sleepingTimeSecond = 120; //сколько спать
+RBD::Timer reconnectTimer(sleepingTimeSecond * 1000);
 const int bufCount = 5;
-const bool debug = true;
+const bool debug = false;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -47,54 +48,57 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() {
 	helper.handle();
-	int i = bufCount;
 
-	float* tbuf = new float[bufCount];
-	float* hbuf = new float[bufCount];
-
-	while (i > 0)
+	if (reconnectTimer.isExpired())
 	{
-		delay(1000);
-		// Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-		float h = dht.readHumidity();
-		// Read temperature as Celsius (the default)
-		float t = dht.readTemperature();
+		int i = bufCount;
+		float* tbuf = new float[bufCount];
+		float* hbuf = new float[bufCount];
 
-		if (isnan(h) || isnan(t))
+		while (i > 0)
 		{
-			Serial.println("ERROR: Failed to read from DHT sensor!");
-			continue;
-		}
-		else
-		{
-			i--;
-			tbuf[i] = t;
-			hbuf[i] = h;
-			if (debug)
+			delay(1000);
+			// Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+			float h = dht.readHumidity();
+			// Read temperature as Celsius (the default)
+			float t = dht.readTemperature();
+
+			if (isnan(h) || isnan(t))
 			{
-				Serial.println(h);
-				Serial.println(t);
+				Serial.println("ERROR: Failed to read from DHT sensor!");
+				continue;
 			}
+			else
+			{
+				i--;
+				tbuf[i] = t;
+				hbuf[i] = h;
+				if (debug)
+				{
+					Serial.println(h);
+					Serial.println(t);
+				}
 
+			}
 		}
-	}
 
-	sort(tbuf);
-	sort(hbuf);
+		sort(tbuf);
+		sort(hbuf);
 
-	publishData(tbuf[bufCount / 2], hbuf[bufCount / 2]);
+		publishData(tbuf[bufCount / 2], hbuf[bufCount / 2]);
 
 
-	delete[] tbuf;
-	delete[] hbuf;
+		delete[] tbuf;
+		delete[] hbuf;
 
+		reconnectTimer.restart();
 	//mqttclient.disconnect();
 	//WiFi.disconnect();
 
 	//ESP.deepSleep(sleepingTimeSecond * 1000000, WAKE_RF_DEFAULT);
 	//delay(500); // wait for deep sleep to happen
-	delay(sleepingTimeSecond * 1000);
-
+	//delay(sleepingTimeSecond * 1000);
+	}
 }
 
 void sort(float a[])
@@ -124,7 +128,7 @@ void publishData(float p_temperature, float p_humidity) {
 	// INFO: the data must be converted into a string; a problem occurs when using floats...
 	root["temperature"] = (String)p_temperature;
 	root["humidity"] = (String)p_humidity;
-	//root.prettyPrintTo(Serial);
+	root.prettyPrintTo(Serial);
 	//Serial.println("");
 	/*
 	{
@@ -135,6 +139,7 @@ void publishData(float p_temperature, float p_humidity) {
 	char data[200];
 	root.printTo(data, root.measureLength() + 1);
 	helper.sender.publish(settings.topicBase + "/" + settings.deviceName, data, true);
+	
 	//yield();
 }
 

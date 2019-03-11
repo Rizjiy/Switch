@@ -10,6 +10,12 @@ Sender::Sender(PubSubClient& mqttClient)
 	this->mqttClient = &mqttClient;
 }
 
+void Sender::publish(string topic, string payload, boolean retained)
+{
+	print("Sender::publish: " + topic + " [" + payload + "]");
+	mqttClient->publish(topic.c_str(), payload.c_str(), retained);
+}
+
 void Sender::publish(string topic, const char* payload, boolean retained)
 {
 	print("Sender::publish: " + topic + " [" + payload + "]");
