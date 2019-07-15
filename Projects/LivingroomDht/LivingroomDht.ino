@@ -1,5 +1,5 @@
-/*
-Датчик температуры и влажности в гостинной
+/*	WeMos D1 R2 & mini
+	Датчик температуры и влажности в гостинной
 */
 #include "home_Sender.h"
 #include "home_ConnectionSettings.h"
