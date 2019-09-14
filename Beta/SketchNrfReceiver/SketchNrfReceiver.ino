@@ -10,6 +10,7 @@ RF24 radio(2, 15);                              // Создаём объект radio для рабо
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+	Serial.println("start");
 
 	pinMode(led, OUTPUT);
 

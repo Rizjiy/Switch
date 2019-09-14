@@ -14,6 +14,7 @@ bool            data[1];                                   // Создаём массив для
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+	Serial.println("Sender start");
 
 	//настройки nRF24
 	SPI.setHwCs(true);
