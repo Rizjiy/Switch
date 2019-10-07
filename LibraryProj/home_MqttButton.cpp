@@ -10,17 +10,41 @@
 using namespace std;
 
 MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName)
-	:MqttButtonBase(buttonPin, relayPin,buttonName)
 {
+	this->buttonPin = buttonPin;
+	this->relayPin = relayPin;
+	this->buttonName = buttonName;
+
+	pinMode(this->relayPin, OUTPUT);
+
 }
 
 void MqttButton::setup()
 {
-	MqttButtonBase::setup();
+	_lockTimer.setTimeout(lockTimout);
+	_lockTimer2.setTimeout(lockTimout2);
 
 	//выключаем реле
 	relaySwitch(LOW);
 
+}
+
+void MqttButton::handle()
+{
+	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
+	if (_flagChange) {
+
+		int curState = getState();
+
+		//состояние кнопки
+		_sender->publish(topicSwitchState, curState, true);
+
+		//отсылаем все топики
+		for (int i = 0; i < _publishTopics.size(); i++)
+			_sender->publish(_publishTopics[i], curState, false);
+
+		_flagChange = false;
+	}
 }
 
 void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) 
@@ -46,6 +70,38 @@ void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length)
 	}
 }
 
+// Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
+void MqttButton::interruptButtton() {
+	//Защита от дребезга 
+	if (_lock || !_lockTimer2.isExpired())
+		return;
+	_lock = true;
+	_lockTimer.restart();
+
+	while (!_lockTimer.isExpired())
+	{
+	}
+
+	if (digitalRead(buttonPin) != levelButton)
+	{
+		btnPress();
+		_flagChange = true;
+	}
+
+	_lockTimer2.restart(); // защищаемся от э/м скачков в реле
+	_lock = false;
+}
+
+//добавить publish topic
+void MqttButton::addTopic(string topic)
+{
+	_publishTopics.push_back(topic);
+}
+
+void MqttButton::setSender(Sender& sender)
+{
+	_sender = &sender;
+}
 
 void MqttButton::btnPress() 
 {
@@ -55,4 +111,24 @@ void MqttButton::btnPress()
 
 	relaySwitch(state);
 }
+
+//читаем текущее состояние реле
+bool MqttButton::getState()
+{
+	int curState = digitalRead(relayPin);
+	if (levelTrigger)
+		return curState;
+	else
+		return !curState;
+}
+
+void MqttButton::relaySwitch(bool state)
+{
+	if (levelTrigger)
+		digitalWrite(relayPin, state);
+	else
+		digitalWrite(relayPin, !state);
+}
+
+
 
