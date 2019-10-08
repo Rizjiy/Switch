@@ -80,10 +80,8 @@ void ConnectionHelper::setup()
 	_reconnectTimer.setTimeout(reconnectTimeout);
 
 	//подписываем callback таким вот хитрым способом
-	MQTT_CALLBACK_SIGNATURE(
-		[this](char* topic, byte* payload, unsigned int length)
-	{
-		Serial.print("MQTT message arrived [");
+	MQTT_CALLBACK_SIGNATURE([this](char* topic, byte* payload, unsigned int length)	{
+		Serial.print("arrived: [");
 		Serial.print(topic);
 		Serial.print("] ");
 		for (int i = 0; i < length; i++) {
@@ -97,8 +95,7 @@ void ConnectionHelper::setup()
 			_buttons[i]->mqttCallback(topic,payload,length);
 		}
 
-	}
-	);
+	});
 
 	mqttClient.setCallback(callback);
 

@@ -1,12 +1,22 @@
+/*
+	turn on:
+		home/testproj/btn1 1
+		home/testproj/btn1 {"action":"on"}
+	turn off:
+		home/testproj/btn1 0
+		home/testproj/btn1 {"action":"off"}
+	hold 10 sec:
+		home/testproj/btn1 {"action":"hold", "duration":10000}
+*/
 
 //#include "Arduino.h"
 #include "home_MqttButton.h"
-#include "home_MqttButtonBase.h"
 #include "home_Sender.h"
 
 #include <RBD_Timer.h>
 #include <vector>
 #include <string>
+#include <ArduinoJson.h>
 using namespace std;
 
 MqttButton::MqttButton(byte buttonPin, byte relayPin, string buttonName)
@@ -45,9 +55,94 @@ void MqttButton::handle()
 
 		_flagChange = false;
 	}
+
+	//для холда
+	if (_flagHold) {
+		if (_holdTimer.isExpired()) {
+
+			//выключаем
+			relaySwitch(false);
+
+			//состояние кнопки
+			_sender->publish(topicSwitchState, false, true);
+
+			_flagHold = false;
+		}
+	}
 }
 
-void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length) 
+void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length)
+{
+	if (strcmp(topic, topicSwitch.c_str()) == 0)
+	{
+		onTopicSwitch(payload, length);
+	}
+	else if (strcmp(topic, topicSwitchState.c_str()) == 0)
+	{
+		onTopicSwitchState(payload, length);
+	}
+}
+
+void MqttButton::onTopicSwitch(byte* payload, unsigned int length)
+{
+	//simple request
+	if (length == 1) {
+
+		bool val = false;
+		if (payload[0] == '1')
+			val = true;
+		else
+			val = false;
+
+		_holdTimer.stop();
+		relaySwitch(val);
+	}
+	else {
+
+		//deserialize json
+		StaticJsonBuffer<200> jsonBuffer;
+		JsonObject& root = jsonBuffer.parseObject(payload);
+
+		if (!root.success()) {
+			Serial.println("parseObject() failed");
+			return;
+		}
+
+		const char* action = root["action"];
+
+		// включаем или выключаем реле в зависимоти от полученных значений данных
+		if (strcmp(action, "on") == 0)
+		{
+			_holdTimer.stop();
+			relaySwitch(true);
+		}
+		else if (strcmp(action, "off") == 0)
+		{
+			_holdTimer.stop();
+			relaySwitch(false);
+		}
+		else if (strcmp(action, "hold") == 0)
+		{
+			//реализация удержания кнопки
+			relaySwitch(true);
+
+			long timeout = root["duration"];
+
+			if (timeout > 0)
+				_holdTimer.setTimeout(timeout);
+			else
+				_holdTimer.setTimeout(holdTimeout);
+
+			_holdTimer.restart();
+			_flagHold = true;
+
+		}
+	}
+
+	_sender->publish(topicSwitchState, getState(), true);
+}
+
+void MqttButton::onTopicSwitchState(byte* payload, unsigned int length)
 {
 	bool val = false;
 	if (payload[0] == '1')
@@ -55,20 +150,13 @@ void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length)
 	else
 		val = false;
 
-	if (strcmp(topic, topicSwitch.c_str()) == 0)
-	{
-		// включаем или выключаем реле в зависимоти от полученных значений данных
-		relaySwitch(val);
-		_sender->publish(topicSwitchState, getState(), true);
-	}
-	else if (strcmp(topic, topicSwitchState.c_str()) == 0)
-	{
-		//обновляем статус других устройств, фактическим состоянием выключателя
-		bool curState = getState();
-		if (val != curState)
-			_sender->publish(topicSwitchState, curState, true);
-	}
+	//обновляем статус других устройств, фактическим состоянием выключателя
+	bool curState = getState();
+	if (val != curState)
+		_sender->publish(topicSwitchState, curState, true);
+
 }
+
 
 // Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
 void MqttButton::interruptButtton() {

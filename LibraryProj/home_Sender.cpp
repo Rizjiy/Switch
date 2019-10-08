@@ -12,19 +12,19 @@ Sender::Sender(PubSubClient& mqttClient)
 
 void Sender::publish(string topic, string payload, boolean retained)
 {
-	print("Sender::publish: " + topic + " [" + payload + "]");
+	print("publish: [" + topic + "] " + payload + "");
 	mqttClient->publish(topic.c_str(), payload.c_str(), retained);
 }
 
 void Sender::publish(string topic, const char* payload, boolean retained)
 {
-	print("Sender::publish: " + topic + " [" + payload + "]");
+	print("publish: [" + topic + "] " + payload + "");
 	mqttClient->publish(topic.c_str(), payload, retained);
 }
 
 void Sender::publish(string topic, bool payload, boolean retained)
 {
-	print("Sender::publish: " + topic + " [" + String(payload).c_str() + "]");
+	print("publish: [" + topic + "] " + String(payload).c_str() + "");
 	mqttClient->publish(topic.c_str(), String(payload).c_str(), retained);
 }
 

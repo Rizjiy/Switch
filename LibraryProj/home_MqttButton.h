@@ -37,6 +37,7 @@ public:
 
 	int lockTimout = 30;
 	int lockTimout2 = 90;
+	int holdTimeout = 10000;
 
 private:
 	volatile boolean _lock = false;
@@ -49,6 +50,11 @@ private:
 	RBD::Timer _lockTimer; // защита от дребезга до
 	RBD::Timer _lockTimer2; // защита от дребезга после
 
+	RBD::Timer _holdTimer; // удержание кнопки
+	boolean _flagHold;
+
+	void onTopicSwitch(byte* payload, unsigned int length);
+	void onTopicSwitchState(byte* payload, unsigned int length);
 };
 
 #endif
