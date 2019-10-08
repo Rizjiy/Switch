@@ -1,4 +1,4 @@
-/*
+/*	Generic ESP8266 Module
 	ѕодсветка растений на кухне и свет над столиком
 */
 #include "home_ConnectionSettings.h"

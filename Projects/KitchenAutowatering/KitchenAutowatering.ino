@@ -1,3 +1,7 @@
+/*	WeMos D1 R2 & mini
+	Автополив на кухне
+*/
+
 #include <RBD_Timer.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>

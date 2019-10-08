@@ -1,5 +1,5 @@
-/*
-	Подсветка кухонной рабочей поверхности
+/*	WeMos D1 R2 & mini
+	Теплый пол в ванной
 */
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"

@@ -1,4 +1,4 @@
-/*
+/*  Generic ESP8266 Module
 	ѕодсветка кухонной рабочей поверхности
 */
 #include "home_ConnectionSettings.h"
