@@ -81,6 +81,10 @@ void MqttButton::mqttCallback(char* topic, byte* payload, unsigned int length)
 	{
 		onTopicSwitchState(payload, length);
 	}
+	else if (strcmp(topic, topicSwitchSetup.c_str()) == 0)
+	{
+		onTopicSwitchSetup(payload, length);
+	}
 }
 
 void MqttButton::onTopicSwitch(byte* payload, unsigned int length)
@@ -154,9 +158,33 @@ void MqttButton::onTopicSwitchState(byte* payload, unsigned int length)
 	bool curState = getState();
 	if (val != curState)
 		_sender->publish(topicSwitchState, curState, true);
-
 }
 
+void MqttButton::onTopicSwitchSetup(byte* payload, unsigned int length)
+{
+	//deserialize json
+	StaticJsonBuffer<200> jsonBuffer;
+	JsonObject& root = jsonBuffer.parseObject(payload);
+
+	if (!root.success()) {
+		Serial.println("parseObject() failed");
+		return;
+	}
+
+	long holdDuration = root["holdDuration"];
+	if (holdDuration > 0)
+		holdTimeout = holdDuration;
+
+	//defaultAction
+	//"none" - отключить прерывание
+
+	//disable - true
+
+	
+
+
+
+}
 
 // Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
 void MqttButton::interruptButtton() {

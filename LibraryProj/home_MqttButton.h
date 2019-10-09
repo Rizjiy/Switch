@@ -33,6 +33,7 @@ public:
 	bool levelTrigger = HIGH; //сигнал срабатывания реле
 	string topicSwitch; //команда преключения реле
 	string topicSwitchState; //команда проверки статуса реле
+	string topicSwitchSetup; //настройка кнопки
 
 	int lockTimout = 30;
 	int lockTimout2 = 90;
@@ -54,6 +55,7 @@ private:
 
 	void onTopicSwitch(byte* payload, unsigned int length);
 	void onTopicSwitchState(byte* payload, unsigned int length);
+	void onTopicSwitchSetup(byte* payload, unsigned int length);
 };
 
 #endif

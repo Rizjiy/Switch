@@ -31,15 +31,20 @@ ConnectionHelper helper(&settings);
 
 MqttButton button1(-1, 12, "plants");
 MqttButton button2(-1, 14, "table");
+MqttButton button3(-1, 13, "waterpump");
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+
+	button3.levelButton = HIGH;
+
 	helper.setup();
 
 	helper.addButton(&button1);
 	helper.addButton(&button2);
+	helper.addButton(&button3);
 
 }
 

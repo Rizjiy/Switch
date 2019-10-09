@@ -145,6 +145,7 @@ void ConnectionHelper::addButton(MqttButton* button)
 	//Устанавливаем топики
 	button->topicSwitch = settings->topicBase + "/" + settings->deviceName + "/" + button->buttonName;
 	button->topicSwitchState = button->topicSwitch + "/state";
+	button->topicSwitchSetup = button->topicSwitch + "/setup";
 
 	if (button->buttonPin >= 0) 
 	{
