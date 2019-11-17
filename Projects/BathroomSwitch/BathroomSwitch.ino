@@ -37,6 +37,7 @@ void setup() {
 	Serial.begin(115200);
 	helper.setup();
 	button1.levelButton = HIGH;
+	button1.levelTrigger = LOW;
 	helper.addButton(&button1);
 
 }
