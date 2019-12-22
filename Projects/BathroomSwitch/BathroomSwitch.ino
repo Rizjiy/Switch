@@ -30,15 +30,25 @@ ConnectionSettings settings(
 ConnectionHelper helper(&settings);
 
 MqttButton button1(14, 12, "mirror");
+MqttButton button2(-1, 13, "fan1");
+MqttButton button3(4, 5, "fan2");
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
 	helper.setup();
+
 	button1.levelButton = HIGH;
 	button1.levelTrigger = LOW;
 	helper.addButton(&button1);
+
+	button2.levelTrigger = LOW;
+	helper.addButton(&button2);
+
+	button3.levelTrigger = LOW;
+	button3.levelTrigger = LOW;
+	helper.addButton(&button3);
 
 }
 
