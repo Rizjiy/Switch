@@ -19,6 +19,7 @@ class MqttButton {
 public:
 	MqttButton(byte buttonPin, byte relayPin, string buttonName);
 	void btnPress();
+	void btnHold(int duration);
 	void interruptButtton();
 	void mqttCallback(char* topic, byte* payload, unsigned int length);
 	void setup();
@@ -34,6 +35,7 @@ public:
 	string topicSwitch; //команда преключения реле
 	string topicSwitchState; //команда проверки статуса реле
 	string topicSwitchSetup; //настройка кнопки
+	bool isHoldButton; //hold - поведение по умолчанию
 
 	int lockTimout = 30;
 	int lockTimout2 = 90;

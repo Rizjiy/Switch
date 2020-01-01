@@ -127,19 +127,8 @@ void MqttButton::onTopicSwitch(byte* payload, unsigned int length)
 		}
 		else if (strcmp(action, "hold") == 0)
 		{
-			//реализация удержания кнопки
-			relaySwitch(true);
-
-			long timeout = root["duration"];
-
-			if (timeout > 0)
-				_holdTimer.setTimeout(timeout);
-			else
-				_holdTimer.setTimeout(holdTimeout);
-
-			_holdTimer.restart();
-			_flagHold = true;
-
+			long duration = root["duration"]>0? root["duration"]: holdTimeout;
+			btnHold(duration);
 		}
 	}
 
@@ -200,7 +189,12 @@ void MqttButton::interruptButtton() {
 
 	if (digitalRead(buttonPin) != levelButton)
 	{
-		btnPress();
+		//todo: butonHold()
+		if (isHoldButton)
+			btnHold(holdTimeout);
+		else
+			btnPress();
+
 		_flagChange = true;
 	}
 
@@ -226,6 +220,20 @@ void MqttButton::btnPress()
 	Serial.println((buttonName + ' ' + "BtnPress(" + String(state).c_str() + ")").c_str());
 
 	relaySwitch(state);
+}
+
+void MqttButton::btnHold(int duration) {
+
+	//реализация удержания кнопки
+	Serial.println((buttonName + ' ' + "BtnHold(" + String(duration).c_str() + ")").c_str());
+
+	relaySwitch(true);
+
+	_holdTimer.setTimeout(duration);
+
+	_holdTimer.restart();
+	_flagHold = true;
+
 }
 
 //читаем текущее состояние реле
