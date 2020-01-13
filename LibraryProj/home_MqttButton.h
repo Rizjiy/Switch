@@ -58,6 +58,9 @@ private:
 	void onTopicSwitch(byte* payload, unsigned int length);
 	void onTopicSwitchState(byte* payload, unsigned int length);
 	void onTopicSwitchSetup(byte* payload, unsigned int length);
+
+	void holdStart();
+	void holdStop();
 };
 
 #endif
