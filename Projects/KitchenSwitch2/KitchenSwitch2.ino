@@ -1,5 +1,5 @@
-/*  Generic ESP8266 Module
-	Подсветка кухонной рабочей поверхности
+/*	Generic ESP8266 Module
+	Подсветка растений на кухне и свет над столиком
 */
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
@@ -24,21 +24,27 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"kitchen/switch"
+	"kitchen/switch2"
 );
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(13, 14, "worktop");
+MqttButton button1(-1, 12, "plants");
+MqttButton button2(-1, 14, "table");
+MqttButton button3(-1, 13, "waterpump");
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+
+	button3.levelButton = HIGH;
+
 	helper.setup();
-	button1.levelButton = HIGH;
-	button1.addTopic("home/kitchen/switch2/table");
+
 	helper.addButton(&button1);
+	helper.addButton(&button2);
+	helper.addButton(&button3);
 
 }
 

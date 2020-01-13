@@ -23,7 +23,7 @@ public:
 	const char* mqttUser;
 	const char* mqttPass;
 	string deviceName;
-	string topicBase = "home/switches";
+	string topicBase = "home";
 };
 
 #endif

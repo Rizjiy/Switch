@@ -4,11 +4,13 @@
 #include <DHT.h>
 #include <ArduinoJson.h>
 #include <Secret.h>
+#include <ArduinoOTA.h>
+
 
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -16,7 +18,7 @@ const char* mqttPass = MQTT_PASSWORD;
 const char* clientName = "dht1";
 const char* topic = "home/dht/1";
 const int dhtPin = 5;
-const int sleepingTimeSecond = 120; //сколько спать
+const int sleepingTimeSecond = 120; //СЃРєРѕР»СЊРєРѕ СЃРїР°С‚СЊ
 const int bufCount = 5;
 
 WiFiClient wclient;
@@ -29,6 +31,8 @@ bool debug = true;
 void setup() {
 
 	Serial.begin(115200);
+	ArduinoOTA.setHostname(clientName);
+	ArduinoOTA.begin();
 
 	//Mqtt setup
 	mqttclient.setServer(mqtt_server, mqtt_port);
@@ -40,7 +44,9 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() 
 {
-	// подключаемся к wi-fi
+	ArduinoOTA.handle();
+
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (!WifiConnect() && !MqttConnect())
 	{
 		delay(60000);
@@ -88,8 +94,8 @@ void loop()
 	delete[] tbuf;
 	delete[] hbuf;
 
-	mqttclient.disconnect();
-	WiFi.disconnect();
+	//mqttclient.disconnect();
+	//WiFi.disconnect();
 
 	//ESP.deepSleep(sleepingTimeSecond * 1000000, WAKE_RF_DEFAULT);
 	//delay(500); // wait for deep sleep to happen

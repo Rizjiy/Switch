@@ -4,15 +4,15 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <SPI.h>
-#include <nRF24L01.h>                                     // Подключаем файл настроек из библиотеки RF24
-#include <RF24.h>                                         // Подключаем библиотеку для работы с nRF24L01+
+#include <nRF24L01.h>                                     // РџРѕРґРєР»СЋС‡Р°РµРј С„Р°Р№Р» РЅР°СЃС‚СЂРѕРµРє РёР· Р±РёР±Р»РёРѕС‚РµРєРё RF24
+#include <RF24.h>                                         // РџРѕРґРєР»СЋС‡Р°РµРј Р±РёР±Р»РёРѕС‚РµРєСѓ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ nRF24L01+
 #include <Secret.h>
 
 
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -29,17 +29,17 @@ const int buttonPin = 5;
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
-RF24           radio(4, 15);                              // Создаём объект radio для работы с библиотекой RF24, указывая номера выводов nRF24L01+ (CE, CSN)
+RF24           radio(4, 15);                              // РЎРѕР·РґР°С‘Рј РѕР±СЉРµРєС‚ radio РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р±РёР±Р»РёРѕС‚РµРєРѕР№ RF24, СѓРєР°Р·С‹РІР°СЏ РЅРѕРјРµСЂР° РІС‹РІРѕРґРѕРІ nRF24L01+ (CE, CSN)
 
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer lockTimer(30); // защита от дребезга
-RBD::Timer lockTimer2(90); // защита от дребезга
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
+RBD::Timer lockTimer(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
+RBD::Timer lockTimer2(90); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 bool debug = true;
 
-int            data[1];                                   // Создаём массив для передачи данных
+int            data[1];                                   // РЎРѕР·РґР°С‘Рј РјР°СЃСЃРёРІ РґР»СЏ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
 volatile bool lock = false;
-volatile boolean rState1 = false; // В прерываниях всегда используем тип volatile для изменяемых переменных
-volatile boolean flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер после того
+volatile boolean rState1 = false; // Р’ РїСЂРµСЂС‹РІР°РЅРёСЏС… РІСЃРµРіРґР° РёСЃРїРѕР»СЊР·СѓРµРј С‚РёРї volatile РґР»СЏ РёР·РјРµРЅСЏРµРјС‹С… РїРµСЂРµРјРµРЅРЅС‹С…
+volatile boolean flagChange = false; // Р¤Р»Р°Рі РЅСѓР¶РµРЅ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРїСѓР±Р»РёРєРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ РїРѕСЃР»Рµ С‚РѕРіРѕ
 
 boolean btnPress = false;
 boolean lastbtnStat = false;
@@ -48,16 +48,16 @@ void setup()
 {
 	Serial.begin(115200);
 
-	//настройки nRF24
+	//РЅР°СЃС‚СЂРѕР№РєРё nRF24
 	SPI.setHwCs(true);
 	SPI.begin();
 	SPI.setDataMode(SPI_MODE0);
 	SPI.setBitOrder(MSBFIRST);
-	radio.begin();                                        // Инициируем работу nRF24L01+
-	radio.setChannel(5);                                  // Указываем канал передачи данных (от 0 до 127), 5 - значит передача данных осуществляется на частоте 2,405 ГГц (на одном канале может быть только 1 приёмник и до 6 передатчиков)
-	radio.setDataRate(RF24_1MBPS);                   // Указываем скорость передачи данных (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS), RF24_1MBPS - 1Мбит/сек
-	radio.setPALevel(RF24_PA_HIGH);                 // Указываем мощность передатчика (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
-	radio.openWritingPipe(0x1234567890LL);               // Открываем трубу с идентификатором 0x1234567890 для передачи данных (на ожном канале может быть открыто до 6 разных труб, которые должны отличаться только последним байтом идентификатора)
+	radio.begin();                                        // РРЅРёС†РёРёСЂСѓРµРј СЂР°Р±РѕС‚Сѓ nRF24L01+
+	radio.setChannel(5);                                  // РЈРєР°Р·С‹РІР°РµРј РєР°РЅР°Р» РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… (РѕС‚ 0 РґРѕ 127), 5 - Р·РЅР°С‡РёС‚ РїРµСЂРµРґР°С‡Р° РґР°РЅРЅС‹С… РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° С‡Р°СЃС‚РѕС‚Рµ 2,405 Р“Р“С† (РЅР° РѕРґРЅРѕРј РєР°РЅР°Р»Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ 1 РїСЂРёС‘РјРЅРёРє Рё РґРѕ 6 РїРµСЂРµРґР°С‚С‡РёРєРѕРІ)
+	radio.setDataRate(RF24_1MBPS);                   // РЈРєР°Р·С‹РІР°РµРј СЃРєРѕСЂРѕСЃС‚СЊ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS), RF24_1MBPS - 1РњР±РёС‚/СЃРµРє
+	radio.setPALevel(RF24_PA_HIGH);                 // РЈРєР°Р·С‹РІР°РµРј РјРѕС‰РЅРѕСЃС‚СЊ РїРµСЂРµРґР°С‚С‡РёРєР° (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
+	radio.openWritingPipe(0x1234567890LL);               // РћС‚РєСЂС‹РІР°РµРј С‚СЂСѓР±Сѓ СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј 0x1234567890 РґР»СЏ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… (РЅР° РѕР¶РЅРѕРј РєР°РЅР°Р»Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‚РєСЂС‹С‚Рѕ РґРѕ 6 СЂР°Р·РЅС‹С… С‚СЂСѓР±, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РїРѕСЃР»РµРґРЅРёРј Р±Р°Р№С‚РѕРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°)
 	//
 
 	//Mqtt setup
@@ -77,28 +77,28 @@ void setup()
 
 void loop()
 {
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (reconnectTimer.isExpired())
 	{
 		if (WifiConnect())
 			if (MqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				mqttclient.loop();
 			}
 			else
 			{
 				reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
-	// Если запущен флаг, то публикуем состояние на брокер
+	// Р•СЃР»Рё Р·Р°РїСѓС‰РµРЅ С„Р»Р°Рі, С‚Рѕ РїСѓР±Р»РёРєСѓРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ
 	if (flagChange) {
 		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 		flagChange = false;
@@ -138,8 +138,8 @@ bool MqttConnect()
 			// Once connected, publish an announcement...
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
-			mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
+			mqttclient.subscribe(topicSwitch); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅРІ С‚РѕРїРёРє СЃ РґР°РЅРЅС‹РјРё
+			mqttclient.subscribe(topicSwitchState); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР° С‚РѕРїРёРє СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј
 
 		}
 		else
@@ -153,7 +153,7 @@ bool MqttConnect()
 	return true;
 }
 
-// Функция получения данных от сервера
+// Р¤СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕС‚ СЃРµСЂРІРµСЂР°
 void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
@@ -169,40 +169,40 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	else
 		val = false;
 
-	//Обработка реле
+	//РћР±СЂР°Р±РѕС‚РєР° СЂРµР»Рµ
 	if (strcmp(topic, topicSwitch) == 0)
 	{
-		// включаем или выключаем реле в зависимоcти от полученных значений данных
+		// РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј СЂРµР»Рµ РІ Р·Р°РІРёСЃРёРјРѕcС‚Рё РѕС‚ РїРѕР»СѓС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР°РЅРЅС‹С…
 		OnBtnPress(val);
 		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 	}
 	else if (strcmp(topic, topicSwitchState) == 0)
 	{
-		//обновляем статус других устройств, фактияеским состоянием выключателя
+		//РѕР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚СѓСЃ РґСЂСѓРіРёС… СѓСЃС‚СЂРѕР№СЃС‚РІ, С„Р°РєС‚РёСЏРµСЃРєРёРј СЃРѕСЃС‚РѕСЏРЅРёРµРј РІС‹РєР»СЋС‡Р°С‚РµР»СЏ
 		if (val != rState1)
 			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 	}
 	
-	//Обработка диммера
+	//РћР±СЂР°Р±РѕС‚РєР° РґРёРјРјРµСЂР°
 	else if (strcmp(topic, topicDim) == 0)
 	{
-		// Диммируем реле исходя из переданных процентов
+		// Р”РёРјРјРёСЂСѓРµРј СЂРµР»Рµ РёСЃС…РѕРґСЏ РёР· РїРµСЂРµРґР°РЅРЅС‹С… РїСЂРѕС†РµРЅС‚РѕРІ
 		OnBtnDimm(payload);
 		mqttclient.publish(topicDimState, payload, true);
 	}
 	else if (strcmp(topic, topicDimState) == 0)
 	{
-		//обновляем статус других устройств, фактияеским состоянием выключателя
+		//РѕР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚СѓСЃ РґСЂСѓРіРёС… СѓСЃС‚СЂРѕР№СЃС‚РІ, С„Р°РєС‚РёСЏРµСЃРєРёРј СЃРѕСЃС‚РѕСЏРЅРёРµРј РІС‹РєР»СЋС‡Р°С‚РµР»СЏ
 		//if (val != rState1)
 			//mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 	}
 
 }
 
-// Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
+// Р¤СѓРЅРєС†РёСЏ, РІС‹Р·С‹РІР°РµРјР°СЏ РїСЂРµСЂС‹РІР°РЅРёРµРј, РґР»СЏ РєРЅРѕРїРєРё Р±РµР· С„РёРєСЃР°С†РёРё (button without fixing)
 void Interrupt_WF() {
 
-	//Защита от дребезга 
+	//Р—Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР° 
 	if (lock || !lockTimer2.isExpired())
 		return;
 	lock = true;
@@ -217,7 +217,7 @@ void Interrupt_WF() {
 		flagChange = true;
 	}
 
-	lockTimer2.restart(); // защищаемся от э/м скачков в реле
+	lockTimer2.restart(); // Р·Р°С‰РёС‰Р°РµРјСЃСЏ РѕС‚ СЌ/Рј СЃРєР°С‡РєРѕРІ РІ СЂРµР»Рµ
 	lock = false;
 }
 
@@ -234,10 +234,10 @@ void OnBtnPress(bool state)
 	//if (state)
 	//	power = 255;
 
-	//Сообщаем, что это сигнал переключателя
+	//РЎРѕРѕР±С‰Р°РµРј, С‡С‚Рѕ СЌС‚Рѕ СЃРёРіРЅР°Р» РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЏ
 	radio.write(1, sizeof(int), 0);
 
-	//Отправляем по трубе текущее состояние
+	//РћС‚РїСЂР°РІР»СЏРµРј РїРѕ С‚СЂСѓР±Рµ С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
 	radio.write(state, sizeof(bool), 0);
 
 	//digitalWrite(relayPin, state);
@@ -253,10 +253,10 @@ void OnBtnDimm(byte* power)
 		Serial.println(")");
 	}
 
-	//сообщаем что это яркость
+	//СЃРѕРѕР±С‰Р°РµРј С‡С‚Рѕ СЌС‚Рѕ СЏСЂРєРѕСЃС‚СЊ
 	radio.write(2, sizeof(int), 0);
 
-	//Отправляем по трубе значение яркости в %
+	//РћС‚РїСЂР°РІР»СЏРµРј РїРѕ С‚СЂСѓР±Рµ Р·РЅР°С‡РµРЅРёРµ СЏСЂРєРѕСЃС‚Рё РІ %
 	radio.write(&power, sizeof(&power), 0);
 
 }

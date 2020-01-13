@@ -1,6 +1,4 @@
-/*
-	Подсветка растений на кухне и свет над столиком
-*/
+#include "home_MqttButtonHold.h"
 #include "home_Sender.h"
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
@@ -10,11 +8,11 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* wifiPass = WI_FI_PASSWORD;
 const char* mqttServer = MQTT_SERVER;
-const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqttPort = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -25,22 +23,24 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"plants"
+	"kitchen/waterpump"
 );
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(-1, 12, "btn1", HIGH);
-MqttButton button2(-1, 14, "btn2", HIGH);
-
+MqttButton button1(-1, 14, "btn1");
+//**
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
-	helper.setup();
+
+	button1.levelTrigger = LOW;
 
 	helper.addButton(&button1);
-	helper.addButton(&button2);
+	//helper.addButton(&button2);
+
+	helper.setup();
 
 }
 

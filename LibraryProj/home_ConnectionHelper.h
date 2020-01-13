@@ -32,7 +32,7 @@ public:
 	WiFiClient wclient;
 	PubSubClient mqttClient;
 	string topicSubscribe;
-	int reconnectTimeout = 60000; //пауза между реконнектами Wi-Fi mc
+	int reconnectTimeout = 60000; //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi mc
 
 private:
 	bool wifiConnect();

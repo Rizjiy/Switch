@@ -1,4 +1,6 @@
-#include "home_Sender.h"
+/*
+	РџРѕРґСЃРІРµС‚РєР° РєСѓС…РѕРЅРЅРѕР№ СЂР°Р±РѕС‡РµР№ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё
+*/
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
 #include "home_MqttButton.h"
@@ -7,11 +9,11 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
-const char* ssid = WI_FI_SSID;
-const char* wifiPass = WI_FI_PASSWORD;
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
+const char* ssid = "uAP";
+const char* wifiPass = "66666666";
 const char* mqttServer = MQTT_SERVER;
-const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqttPort = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -22,26 +24,32 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"switch97"
+	"testproj"
 );
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(14, 12, "btn1", LOW);
-MqttButton button2(13, 12, "btn2", LOW);
-//**
+MqttButton button1(14, 12, "mirror");
+MqttButton button2(-1, 13, "fan1");
+MqttButton button3(4, 5, "fan2");
+
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+	helper.setup();
 
-	button1.lockTimout = 2000;
-	button1.lockTimout2 = 2000;
-
+	button1.levelButton = HIGH;
+	button1.levelTrigger = LOW;
 	helper.addButton(&button1);
+
+	button2.levelTrigger = LOW;
 	helper.addButton(&button2);
 
-	helper.setup();
+	button3.levelButton = LOW;
+	button3.levelTrigger = LOW;
+	button3.isHoldButton = true;
+	helper.addButton(&button3);
 
 }
 

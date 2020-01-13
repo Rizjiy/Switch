@@ -1,5 +1,5 @@
-/*  Generic ESP8266 Module
-	Подсветка кухонной рабочей поверхности
+/*	WeMos D1 R2 & mini
+	Теплый пол в ванной
 */
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
@@ -24,20 +24,19 @@ ConnectionSettings settings(
 	mqttPort,
 	mqttUser,
 	mqttPass,
-	"kitchen/switch"
+	"hall/switch"
 );
 
 ConnectionHelper helper(&settings);
 
-MqttButton button1(13, 14, "worktop");
+MqttButton button1(-1, 14, "warmfloor");
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
 	helper.setup();
-	button1.levelButton = HIGH;
-	button1.addTopic("home/kitchen/switch2/table");
+	button1.levelTrigger = LOW;
 	helper.addButton(&button1);
 
 }

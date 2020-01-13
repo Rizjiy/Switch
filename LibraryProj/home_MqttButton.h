@@ -17,34 +17,50 @@ using namespace std;
 
 class MqttButton {
 public:
-	MqttButton(byte buttonPin, byte relayPin, string buttonName, bool levelButton);
-	void btnPress(bool state);
+	MqttButton(byte buttonPin, byte relayPin, string buttonName);
+	void btnPress();
+	void btnHold(int duration);
 	void interruptButtton();
 	void mqttCallback(char* topic, byte* payload, unsigned int length);
-	void setup(); 
+	void setup();
 	void handle();
+	bool getState();
 	void addTopic(string topic);
 	void setSender(Sender& sender);
-	bool getState();
-	byte buttonPin = -1; //-1 - нет физической кнопки
+	byte buttonPin = -1; //-1 - РЅРµС‚ С„РёР·РёС‡РµСЃРєРѕР№ РєРЅРѕРїРєРё
 	byte relayPin;
 	string buttonName;
-	boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
-	string topicSwitch; //команда преключения реле
-	string topicSwitchState; //команда проверки статуса реле
+	bool levelButton = LOW; // вЂ”РёРіРЅР°Р» РІ РЅРѕСЂРјР°Р»СЊРЅРѕРј СЃРѕСЃС‚РѕВ¤РЅРёРё РЅР° РєРЅРѕРїРєРµ РёР»Рё РґР°С‚С‡РёРєРµ РєР°СЃР°РЅРёВ¤
+	bool levelTrigger = HIGH; //СЃРёРіРЅР°Р» СЃСЂР°Р±Р°С‚С‹РІР°РЅРёВ¤ СЂРµР»Рµ
+	string topicSwitch; //РєРѕРјР°РЅРґР° РїСЂРµРєР»СЋС‡РµРЅРёВ¤ СЂРµР»Рµ
+	string topicSwitchState; //РєРѕРјР°РЅРґР° РїСЂРѕРІРµСЂРєРё СЃС‚Р°С‚СѓСЃР° СЂРµР»Рµ
+	string topicSwitchSetup; //РЅР°СЃС‚СЂРѕР№РєР° РєРЅРѕРїРєРё
+	bool isHoldButton; //hold - РїРѕРІРµРґРµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 
 	int lockTimout = 30;
 	int lockTimout2 = 90;
+	int holdTimeout = 10000;
 
 private:
+	volatile boolean _lock = false;
 	vector<string> _publishTopics;
 	Sender* _sender;
-	volatile boolean _lock = false;
-	volatile boolean _flagChange = false; // Флаг нужен для того, чтобы опубликовать сообщение на брокер
 
-	RBD::Timer _lockTimer; // защита от дребезга до
-	RBD::Timer _lockTimer2; // защита от дребезга после
+	volatile boolean _flagChange = false; // вЂР»Р°Рі РЅСѓР¶РµРЅ РґР»В¤ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРїСѓР±Р»РёРєРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ
+	void relaySwitch(bool state);
 
+	RBD::Timer _lockTimer; // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР° РґРѕ
+	RBD::Timer _lockTimer2; // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР° РїРѕСЃР»Рµ
+
+	RBD::Timer _holdTimer; // СѓРґРµСЂР¶Р°РЅРёРµ РєРЅРѕРїРєРё
+	boolean _flagHold;
+
+	void onTopicSwitch(byte* payload, unsigned int length);
+	void onTopicSwitchState(byte* payload, unsigned int length);
+	void onTopicSwitchSetup(byte* payload, unsigned int length);
+
+	void holdStart();
+	void holdStop();
 };
 
 #endif

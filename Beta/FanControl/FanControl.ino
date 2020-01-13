@@ -7,7 +7,7 @@
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -21,17 +21,17 @@ const int dhtPin0 = 5;
 //
 //const int relayPin1 = 13; //for fun1
 
-const float deltaHmax = 20; //% влажности
-const float deltaHmin = 5; //% влажности
+const float deltaHmax = 20; //% РІР»Р°Р¶РЅРѕСЃС‚Рё
+const float deltaHmin = 5; //% РІР»Р°Р¶РЅРѕСЃС‚Рё
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
 
 bool debug = true;
 
-// Инициируем датчик
+// РРЅРёС†РёРёСЂСѓРµРј РґР°С‚С‡РёРє
 DHT dht0(dhtPin0, DHT22);
 //DHT dht1(dhtPin1, DHT22);
 //DHT dht3(dhtPin2, DHT22);
@@ -52,44 +52,44 @@ void setup()
 void loop() 
 {
   
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (reconnectTimer.isExpired())
 	{
 		if (WifiConnect())
 			if (MqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				mqttclient.loop();
 			}
 			else
 			{
 				reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
-	// Задержка между измерениями
+	// Р—Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ РёР·РјРµСЂРµРЅРёСЏРјРё
 	delay(5000);
 
-	//Считываем влажность
+	//РЎС‡РёС‚С‹РІР°РµРј РІР»Р°Р¶РЅРѕСЃС‚СЊ
 	float h0 = dht0.readHumidity();
 	//float h1 = dht1.readHumidity();
 	
-	//// Проверка удачно прошло ли считывание.
+	//// РџСЂРѕРІРµСЂРєР° СѓРґР°С‡РЅРѕ РїСЂРѕС€Р»Рѕ Р»Рё СЃС‡РёС‚С‹РІР°РЅРёРµ.
 	//if (!isnan(h0) && !isnan(h1))
 	//{
-	//	//для включения реле нужно, чтобы разница была больше заданной
+	//	//РґР»СЏ РІРєР»СЋС‡РµРЅРёСЏ СЂРµР»Рµ РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ СЂР°Р·РЅРёС†Р° Р±С‹Р»Р° Р±РѕР»СЊС€Рµ Р·Р°РґР°РЅРЅРѕР№
 	//	if (h1 - h0 >= deltaHmax)
 	//	{
 
 	//	}
 
-	//	//для выключения реле нужно, чтобы разница была меньше заданной
+	//	//РґР»СЏ РІС‹РєР»СЋС‡РµРЅРёСЏ СЂРµР»Рµ РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ СЂР°Р·РЅРёС†Р° Р±С‹Р»Р° РјРµРЅСЊС€Рµ Р·Р°РґР°РЅРЅРѕР№
 	//	if (h1 - h0 <= deltaHmin)
 	//	{
 
@@ -97,7 +97,7 @@ void loop()
 	//}
 
 
-	// Считываем температуру
+	// РЎС‡РёС‚С‹РІР°РµРј С‚РµРјРїРµСЂР°С‚СѓСЂСѓ
 	float t0 = dht0.readTemperature();
 
 	mqttclient.publish("home/holl/temperature", String(t0).c_str(), false);
@@ -106,9 +106,9 @@ void loop()
 
 	if (debug)
 	{
-		Serial.print("Влажность: ");
+		Serial.print("Р’Р»Р°Р¶РЅРѕСЃС‚СЊ: ");
 		Serial.print(h0);
-		Serial.print(" %\t Температура: ");
+		Serial.print(" %\t РўРµРјРїРµСЂР°С‚СѓСЂР°: ");
 		Serial.print(t0);
 		Serial.print(" *C ");
 		Serial.println();
@@ -147,8 +147,8 @@ bool MqttConnect()
 			// Once connected, publish an announcement...
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			//mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
-			//mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
+			//mqttclient.subscribe(topicSwitch); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅРІ С‚РѕРїРёРє СЃ РґР°РЅРЅС‹РјРё
+			//mqttclient.subscribe(topicSwitchState); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР° С‚РѕРїРёРє СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј
 
 		}
 		else

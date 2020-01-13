@@ -4,8 +4,8 @@
 
 const char* ssid = "MikroTik48";
 const char* password = "";// 
-const char *mqtt_server = "192.168.88.3"; // адрес сервера MQTT
-const int mqtt_port = 1883; // Порт для подключения к серверу MQTT
+const char *mqtt_server = "192.168.88.3"; // Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР° MQTT
+const int mqtt_port = 1883; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* clientName = "switch1";
 const char* mqttUser = "mqtt";
 const char* mqttPass = "";
@@ -16,8 +16,8 @@ PubSubClient mqttclient(wclient);
 int relayPin = 13;
 int buttonPin = 12;
 
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
+RBD::Timer debugTimer(3000); //3 sec РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РЅРµ Р·Р°Р±РёРІР°С‚СЊ СЌС„РёСЂ
 bool debug = false;
 
 boolean rState1 = false;
@@ -46,24 +46,24 @@ void setup()
 
 void loop()
 {
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (reconnectTimer.isExpired())
 	{
 		if (WifiConnect())
 			if (MqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				mqttclient.loop();
 			}
 			else
 			{
 				reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
@@ -101,8 +101,8 @@ bool MqttConnect()
 			// Once connected, publish an announcement...
 			mqttclient.publish("Start", clientName);
 			// ... and resubscribe
-			mqttclient.subscribe(topicSwitch); // подписываемся нв топик с данными
-			mqttclient.subscribe(topicSwitchState); // подписываемся на топик со статусом
+			mqttclient.subscribe(topicSwitch); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅРІ С‚РѕРїРёРє СЃ РґР°РЅРЅС‹РјРё
+			mqttclient.subscribe(topicSwitchState); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР° С‚РѕРїРёРє СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј
 
 		}
 		else 
@@ -116,7 +116,7 @@ bool MqttConnect()
 	return true;
 }
 
-// Функция получения данных от сервера
+// Р¤СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕС‚ СЃРµСЂРІРµСЂР°
 void MqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("MQTT message arrived [");
 	Serial.print(topic);
@@ -134,20 +134,20 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 
 	if (strcmp(topic, topicSwitch) == 0)
 	{
-		// включаем или выключаем реле в зависимоти от полученных значений данных
+		// РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј СЂРµР»Рµ РІ Р·Р°РІРёСЃРёРјРѕС‚Рё РѕС‚ РїРѕР»СѓС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР°РЅРЅС‹С…
 		OnBtnPress(val);
 		mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 	}
 	else if (strcmp(topic, topicSwitchState) == 0)
 	{
-		//обновляем статус других устройств, фактияеским состоянием выключателя
+		//РѕР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚СѓСЃ РґСЂСѓРіРёС… СѓСЃС‚СЂРѕР№СЃС‚РІ, С„Р°РєС‚РёСЏРµСЃРєРёРј СЃРѕСЃС‚РѕСЏРЅРёРµРј РІС‹РєР»СЋС‡Р°С‚РµР»СЏ
 		if (val != rState1)
 			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 
 	}
 }
 
-// button without fixing, кнопка без фиксации
+// button without fixing, РєРЅРѕРїРєР° Р±РµР· С„РёРєСЃР°С†РёРё
 void ButtonWf() {
 	btnPress = digitalRead(buttonPin);
 
@@ -160,12 +160,12 @@ void ButtonWf() {
 	}
 
 	if (btnPress && !lastbtnStat) {
-		delay(30); // защита от дребезга
+		delay(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 		btnPress = digitalRead(buttonPin);
 
 		if (btnPress) {  
 			OnBtnPress(!rState1);
-			// публикуем изменение состояния реле на брокер (возвратное)   
+			// РїСѓР±Р»РёРєСѓРµРј РёР·РјРµРЅРµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЂРµР»Рµ РЅР° Р±СЂРѕРєРµСЂ (РІРѕР·РІСЂР°С‚РЅРѕРµ)   
 			mqttclient.publish(topicSwitchState, String(rState1).c_str(), true);
 		}
 	}
@@ -179,7 +179,7 @@ void OnBtnPress(bool state)
 	Serial.println(")");
 
 	digitalWrite(relayPin, state);
-	//меняем текущее состояние
+	//РјРµРЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
 	rState1 = state;
 }
 
