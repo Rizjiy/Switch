@@ -4,6 +4,7 @@
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
 #include "home_MqttButton.h"
+#include "home_HoldButton.h"
 #include <Secret.h>
 
 #include <string>
@@ -31,7 +32,7 @@ ConnectionHelper helper(&settings);
 
 MqttButton button1(14, 12, "mirror");
 MqttButton button2(-1, 13, "fan1");
-MqttButton button3(4, 5, "fan2");
+HoldButton button3(4, 5, "fan2");
 
 
 // the setup function runs once when you press reset or power the board
