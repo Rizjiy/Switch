@@ -8,11 +8,11 @@
 //#include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -20,19 +20,19 @@ const char* clientName = "switch6";
 const char *topicSwitch = "home/switches/6";
 const char *topicSwitchState = "home/switches/6/status";
 
-const int buttonPin = 12; //-1 - нет физической кнопки
+const int buttonPin = 12; //-1 - РЅРµС‚ С„РёР·РёС‡РµСЃРєРѕР№ РєРЅРѕРїРєРё
 const int relayPin = 13;
 
 boolean levelTrigger = LOW;
-boolean levelButton = HIGH; // Сигнал в нормальном состоянии на кнопке или датчике касания
+boolean levelButton = HIGH; // РЎРёРіРЅР°Р» РІ РЅРѕСЂРјР°Р»СЊРЅРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё РЅР° РєРЅРѕРїРєРµ РёР»Рё РґР°С‚С‡РёРєРµ РєР°СЃР°РЅРёСЏ
 
 WiFiClient wclient;
 PubSubClient mqttclient(wclient);
 
-RBD::Timer reconnectTimer(60000); //пауза между реконнектами Wi-Fi
-RBD::Timer debugTimer(3000); //3 sec для того, чтобы не забивать эфир
-RBD::Timer lockTimer(30); // защита от дребезга
-RBD::Timer lockTimer2(90); // защита от дребезга
+RBD::Timer reconnectTimer(60000); //РїР°СѓР·Р° РјРµР¶РґСѓ СЂРµРєРѕРЅРЅРµРєС‚Р°РјРё Wi-Fi
+RBD::Timer debugTimer(3000); //3 sec РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РЅРµ Р·Р°Р±РёРІР°С‚СЊ СЌС„РёСЂ
+RBD::Timer lockTimer(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
+RBD::Timer lockTimer2(90); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 
 #define BME280_ADDRESS  (0x77)
 #define BME280_ADDRESS2  (0x76)

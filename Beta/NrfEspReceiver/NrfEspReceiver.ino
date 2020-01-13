@@ -1,6 +1,6 @@
-#include <SPI.h>                                          // Подключаем библиотеку  для работы с шиной SPI
+#include <SPI.h>                                          // РџРѕРґРєР»СЋС‡Р°РµРј Р±РёР±Р»РёРѕС‚РµРєСѓ  РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С€РёРЅРѕР№ SPI
 #include <RF24Network.h>
-#include <RF24.h>                                         // Подключаем библиотеку  для работы с nRF24L01+
+#include <RF24.h>                                         // РџРѕРґРєР»СЋС‡Р°РµРј Р±РёР±Р»РёРѕС‚РµРєСѓ  РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ nRF24L01+
 
 #define CE_PIN 2
 #define CSN_PIN 15
@@ -11,7 +11,7 @@ int led = 4;           // the PWM pin the LED is attached to
 const uint16_t sensor_node = 1;
 const uint16_t rx_node = 0;
 
-RF24 radio(CE_PIN, CSN_PIN);                              // Создаём объект radio для работы с библиотекой RF24, указывая номера выводов nRF24L01+ (CE, CSN)
+RF24 radio(CE_PIN, CSN_PIN);                              // РЎРѕР·РґР°С‘Рј РѕР±СЉРµРєС‚ radio РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р±РёР±Р»РёРѕС‚РµРєРѕР№ RF24, СѓРєР°Р·С‹РІР°СЏ РЅРѕРјРµСЂР° РІС‹РІРѕРґРѕРІ nRF24L01+ (CE, CSN)
 RF24Network network(radio);
 
 RF24NetworkHeader header;
@@ -52,7 +52,7 @@ void loop() {
 
 void SwitchPower(bool value)
 {
-	//меняем текущее состояние
+	//РјРµРЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
 	analogWrite(led, value);
 }
 

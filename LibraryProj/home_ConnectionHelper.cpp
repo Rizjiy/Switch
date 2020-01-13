@@ -13,7 +13,7 @@
 #include <string>
 using namespace std;
 
-MqttButton* ConnectionHelper::_buttons[4]; //макимум кнопок
+MqttButton* ConnectionHelper::_buttons[4]; //РјР°РєРёРјСѓРј РєРЅРѕРїРѕРє
 byte ConnectionHelper::_buttonsCount = 0;
 
 ConnectionHelper::ConnectionHelper(ConnectionSettings* settings)
@@ -22,7 +22,7 @@ ConnectionHelper::ConnectionHelper(ConnectionSettings* settings)
 {
 	this->settings = settings;
 
-	//почему-то не получилось создать здесь :(
+	//РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ Р·РґРµСЃСЊ :(
 	//WiFiClient wclient;
 	//mqttClient = new PubSubClient(settings->mqttServer, settings->mqttPort, wclient);
 
@@ -59,7 +59,7 @@ bool ConnectionHelper::mqttConnect()
 			// Once connected, publish an announcement...
 			mqttClient.publish("Start", settings->deviceName.c_str());
 			// ... and resubscribe
-			mqttClient.subscribe(topicSubscribe.c_str()); // подписываемся на топики для этого устройства
+			mqttClient.subscribe(topicSubscribe.c_str()); // РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР° С‚РѕРїРёРєРё РґР»СЏ СЌС‚РѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°
 		}
 		else
 		{
@@ -79,7 +79,7 @@ void ConnectionHelper::setup()
 
 	_reconnectTimer.setTimeout(reconnectTimeout);
 
-	//подписываем callback таким вот хитрым способом
+	//РїРѕРґРїРёСЃС‹РІР°РµРј callback С‚Р°РєРёРј РІРѕС‚ С…РёС‚СЂС‹Рј СЃРїРѕСЃРѕР±РѕРј
 	MQTT_CALLBACK_SIGNATURE([this](char* topic, byte* payload, unsigned int length)	{
 		Serial.print("arrived: [");
 		Serial.print(topic);
@@ -89,7 +89,7 @@ void ConnectionHelper::setup()
 		}
 		Serial.println();
 
-		//передаем message в каждую кнопку
+		//РїРµСЂРµРґР°РµРј message РІ РєР°Р¶РґСѓСЋ РєРЅРѕРїРєСѓ
 		for (byte i = 0; i < _buttonsCount; i++)
 		{
 			_buttons[i]->mqttCallback(topic,payload,length);
@@ -107,28 +107,28 @@ void ConnectionHelper::handle() {
 
 	ArduinoOTA.handle();
 
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (_reconnectTimer.isExpired())
 	{
 		if (wifiConnect())
 			if (mqttConnect())
 			{
-				//Все ок
+				//Р’СЃРµ РѕРє
 				mqttClient.loop();
 			}
 			else
 			{
 				_reconnectTimer.restart();
-				//Mqtt не подключился
+				//Mqtt РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 			}
 		else
 		{
 			_reconnectTimer.restart();
-			//Wi-fi не подключился
+			//Wi-fi РЅРµ РїРѕРґРєР»СЋС‡РёР»СЃСЏ
 		}
 	}
 
-	//цикл для каждой кнопки
+	//С†РёРєР» РґР»СЏ РєР°Р¶РґРѕР№ РєРЅРѕРїРєРё
 	for (byte i = 0; i < _buttonsCount; i++)
 	{
 		_buttons[i]->handle();
@@ -142,7 +142,7 @@ void ConnectionHelper::addButton(MqttButton* button)
 	_buttons[_buttonsCount-1] = button;
 	button->setSender(sender);
 
-	//Устанавливаем топики
+	//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚РѕРїРёРєРё
 	button->topicSwitch = settings->topicBase + "/" + settings->deviceName + "/" + button->buttonName;
 	button->topicSwitchState = button->topicSwitch + "/state";
 	button->topicSwitchSetup = button->topicSwitch + "/setup";

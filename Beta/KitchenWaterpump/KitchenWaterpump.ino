@@ -8,11 +8,11 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* wifiPass = WI_FI_PASSWORD;
 const char* mqttServer = MQTT_SERVER;
-const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqttPort = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 

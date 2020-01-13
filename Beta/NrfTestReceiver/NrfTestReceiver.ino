@@ -5,8 +5,8 @@
 #include <Wire.h>
 //#include <LiquidCrystal_I2C.h> // LCD+I2C
 
-RF24 radio(2, 15);  // указать номера пинов, куда подключаются CE и CSN
-const byte rxAddr[6] = "00001"; // адрес
+RF24 radio(2, 15);  // СѓРєР°Р·Р°С‚СЊ РЅРѕРјРµСЂР° РїРёРЅРѕРІ, РєСѓРґР° РїРѕРґРєР»СЋС‡Р°СЋС‚СЃВ¤ CE Рё CSN
+const byte rxAddr[6] = "00001"; // Р°РґСЂРµСЃ
 
 int count = 0;
 
@@ -17,8 +17,8 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("Start");
 
-	//lcd.init();     // Инициализация lcd   
-	//lcd.backlight();   // Включаем подсветку
+	//lcd.init();     // В»РЅРёС†РёР°Р»РёР·Р°С†РёВ¤ lcd   
+	//lcd.backlight();   // В¬РєР»СЋС‡Р°РµРј РїРѕРґСЃРІРµС‚РєСѓ
 	//lcd.clear();
 	////lcd.setBacklight(LOW);
 	//lcd.setCursor(0, 0);

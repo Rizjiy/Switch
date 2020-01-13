@@ -19,11 +19,11 @@ void setup()
 	Serial.print("Setup");
 	pinMode(led, OUTPUT);
 
-	// ШИМ 8 разрядов, 62,5 кГц
+	// РЋВ»С› 8 СЂР°Р·СЂВ¤РґРѕРІ, 62,5 Рєв€љС†
 	//TCCR1A = TCCR1A & 0xe0 | 1;
 	//TCCR1B = TCCR1B & 0xe0 | 0x09;
 
-	//10 бит, 244,14 Гц 
+	//10 Р±РёС‚, 244,14 в€љС† 
 	TCCR1A = TCCR1A & 0xe0 | 3;
 	TCCR1B = TCCR1B & 0xe0 | 0x0b;
 
@@ -44,11 +44,11 @@ void ButtonWf() {
 	btnPress = digitalRead(buttonPin);
 
 	if (btnPress && !lastbtnStat) {
-		delay(30); // защита от дребезга
+		delay(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 		btnPress = digitalRead(buttonPin);
 
 		if (btnPress) {
-			//определяем следующий режим
+			//РѕРїСЂРµРґРµР»В¤РµРј СЃР»РµРґСѓСЋС‰РёР№ СЂРµР¶РёРј
 			curChanel++;
 
 			if (curChanel >= 7)
@@ -72,7 +72,7 @@ void OnBtnPress(int brightness)
 		Serial.println(")");
 	}
 
-	//меняем текущее состояние
+	//РјРµРЅВ¤РµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕВ¤РЅРёРµ
 	analogWrite(led, brightness);
 }
 

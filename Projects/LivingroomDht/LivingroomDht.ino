@@ -1,5 +1,5 @@
 /*	WeMos D1 R2 & mini
-	Датчик температуры и влажности в гостинной
+	Р”Р°С‚С‡РёРє С‚РµРјРїРµСЂР°С‚СѓСЂС‹ Рё РІР»Р°Р¶РЅРѕСЃС‚Рё РІ РіРѕСЃС‚РёРЅРЅРѕР№
 */
 #include "home_Sender.h"
 #include "home_ConnectionSettings.h"
@@ -12,11 +12,11 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* wifiPass = WI_FI_PASSWORD;
 const char* mqttServer = MQTT_SERVER;
-const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqttPort = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -33,7 +33,7 @@ ConnectionSettings settings(
 ConnectionHelper helper(&settings);
 
 DHT dht(5, DHT22);
-const int sleepingTimeSecond = 120; //сколько спать
+const int sleepingTimeSecond = 120; //СЃРєРѕР»СЊРєРѕ СЃРїР°С‚СЊ
 RBD::Timer reconnectTimer(sleepingTimeSecond * 1000);
 const int bufCount = 5;
 const bool debug = false;

@@ -1,5 +1,5 @@
 /*	Generic ESP8266 Module
-	Подсветка растений на кухне и свет над столиком
+	РџРѕРґСЃРІРµС‚РєР° СЂР°СЃС‚РµРЅРёР№ РЅР° РєСѓС…РЅРµ Рё СЃРІРµС‚ РЅР°Рґ СЃС‚РѕР»РёРєРѕРј
 */
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
@@ -9,11 +9,11 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = WI_FI_SSID;
 const char* wifiPass = WI_FI_PASSWORD;
 const char* mqttServer = MQTT_SERVER;
-const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqttPort = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 

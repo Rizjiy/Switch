@@ -34,36 +34,36 @@ void MqttButton::setup()
 	_lockTimer.setTimeout(lockTimout);
 	_lockTimer2.setTimeout(lockTimout2);
 
-	//выключаем реле
+	//РІС‹РєР»СЋС‡Р°РµРј СЂРµР»Рµ
 	relaySwitch(LOW);
 
 }
 
 void MqttButton::handle()
 {
-	// Для прерывания. Если запущен флаг, то публикуем состояние на брокер
+	// Р”Р»СЏ РїСЂРµСЂС‹РІР°РЅРёСЏ. Р•СЃР»Рё Р·Р°РїСѓС‰РµРЅ С„Р»Р°Рі, С‚Рѕ РїСѓР±Р»РёРєСѓРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РЅР° Р±СЂРѕРєРµСЂ
 	if (_flagChange) {
 
 		int curState = getState();
 
-		//состояние кнопки
+		//СЃРѕСЃС‚РѕСЏРЅРёРµ РєРЅРѕРїРєРё
 		_sender->publish(topicSwitchState, curState, true);
 
-		//отсылаем все топики
+		//РѕС‚СЃС‹Р»Р°РµРј РІСЃРµ С‚РѕРїРёРєРё
 		for (int i = 0; i < _publishTopics.size(); i++)
 			_sender->publish(_publishTopics[i], curState, false);
 
 		_flagChange = false;
 	}
 
-	//для холда
+	//РґР»СЏ С…РѕР»РґР°
 	if (_flagHold) {
 		if (_holdTimer.isExpired()) {
 
-			//выключаем
+			//РІС‹РєР»СЋС‡Р°РµРј
 			relaySwitch(false);
 
-			//состояние кнопки
+			//СЃРѕСЃС‚РѕСЏРЅРёРµ РєРЅРѕРїРєРё
 			_sender->publish(topicSwitchState, false, true);
 
 			_flagHold = false;
@@ -114,7 +114,7 @@ void MqttButton::onTopicSwitch(byte* payload, unsigned int length)
 
 		const char* action = root["action"];
 
-		// включаем или выключаем реле в зависимоти от полученных значений данных
+		// РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј СЂРµР»Рµ РІ Р·Р°РІРёСЃРёРјРѕС‚Рё РѕС‚ РїРѕР»СѓС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР°РЅРЅС‹С…
 		if (strcmp(action, "on") == 0)
 		{
 			_holdTimer.stop();
@@ -143,7 +143,7 @@ void MqttButton::onTopicSwitchState(byte* payload, unsigned int length)
 	else
 		val = false;
 
-	//обновляем статус других устройств, фактическим состоянием выключателя
+	//РѕР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚СѓСЃ РґСЂСѓРіРёС… СѓСЃС‚СЂРѕР№СЃС‚РІ, С„Р°РєС‚РёС‡РµСЃРєРёРј СЃРѕСЃС‚РѕСЏРЅРёРµРј РІС‹РєР»СЋС‡Р°С‚РµР»СЏ
 	bool curState = getState();
 	if (val != curState)
 		_sender->publish(topicSwitchState, curState, true);
@@ -165,7 +165,7 @@ void MqttButton::onTopicSwitchSetup(byte* payload, unsigned int length)
 		holdTimeout = holdDuration;
 
 	//defaultAction
-	//"none" - отключить прерывание
+	//"none" - РѕС‚РєР»СЋС‡РёС‚СЊ РїСЂРµСЂС‹РІР°РЅРёРµ
 
 	//disable - true
 
@@ -175,9 +175,9 @@ void MqttButton::onTopicSwitchSetup(byte* payload, unsigned int length)
 
 }
 
-// Функция, вызываемая прерыванием, для кнопки без фиксации (button without fixing)
+// Р¤СѓРЅРєС†РёСЏ, РІС‹Р·С‹РІР°РµРјР°СЏ РїСЂРµСЂС‹РІР°РЅРёРµРј, РґР»СЏ РєРЅРѕРїРєРё Р±РµР· С„РёРєСЃР°С†РёРё (button without fixing)
 void MqttButton::interruptButtton() {
-	//Защита от дребезга 
+	//Р—Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР° 
 	if (_lock || !_lockTimer2.isExpired())
 		return;
 	_lock = true;
@@ -198,11 +198,11 @@ void MqttButton::interruptButtton() {
 		_flagChange = true;
 	}
 
-	_lockTimer2.restart(); // защищаемся от э/м скачков в реле
+	_lockTimer2.restart(); // Р·Р°С‰РёС‰Р°РµРјСЃСЏ РѕС‚ СЌ/Рј СЃРєР°С‡РєРѕРІ РІ СЂРµР»Рµ
 	_lock = false;
 }
 
-//добавить publish topic
+//РґРѕР±Р°РІРёС‚СЊ publish topic
 void MqttButton::addTopic(string topic)
 {
 	_publishTopics.push_back(topic);
@@ -224,7 +224,7 @@ void MqttButton::btnPress()
 
 void MqttButton::btnHold(int duration) {
 
-	//реализация удержания кнопки
+	//СЂРµР°Р»РёР·Р°С†РёСЏ СѓРґРµСЂР¶Р°РЅРёСЏ РєРЅРѕРїРєРё
 	Serial.println((buttonName + ' ' + "BtnHold(" + String(duration).c_str() + ")").c_str());
 
 	relaySwitch(true);
@@ -236,7 +236,7 @@ void MqttButton::btnHold(int duration) {
 
 }
 
-//читаем текущее состояние реле
+//С‡РёС‚Р°РµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ СЂРµР»Рµ
 bool MqttButton::getState()
 {
 	int curState = digitalRead(relayPin);

@@ -1,5 +1,5 @@
 /*
-	Подсветка кухонной рабочей поверхности
+	РџРѕРґСЃРІРµС‚РєР° РєСѓС…РѕРЅРЅРѕР№ СЂР°Р±РѕС‡РµР№ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё
 */
 #include "home_ConnectionSettings.h"
 #include "home_ConnectionHelper.h"
@@ -9,11 +9,11 @@
 #include <string>
 using namespace std;
 
-//***Блок переменных
+//***Р‘Р»РѕРє РїРµСЂРµРјРµРЅРЅС‹С…
 const char* ssid = "uAP";
 const char* wifiPass = "66666666";
 const char* mqttServer = MQTT_SERVER;
-const int mqttPort = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqttPort = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 

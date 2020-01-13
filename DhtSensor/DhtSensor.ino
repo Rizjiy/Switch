@@ -10,7 +10,7 @@
 const char* ssid = WI_FI_SSID;
 const char* password = WI_FI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
-const int mqtt_port = MQTT_PORT; // Порт для подключения к серверу MQTT
+const int mqtt_port = MQTT_PORT; // РџРѕСЂС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ MQTT
 const char* mqttUser = MQTT_USER;
 const char* mqttPass = MQTT_PASSWORD;
 
@@ -18,7 +18,7 @@ const char* mqttPass = MQTT_PASSWORD;
 const char* clientName = "dht1";
 const char* topic = "home/dht/1";
 const int dhtPin = 5;
-const int sleepingTimeSecond = 120; //сколько спать
+const int sleepingTimeSecond = 120; //СЃРєРѕР»СЊРєРѕ СЃРїР°С‚СЊ
 const int bufCount = 5;
 
 WiFiClient wclient;
@@ -46,7 +46,7 @@ void loop()
 {
 	ArduinoOTA.handle();
 
-	// подключаемся к wi-fi
+	// РїРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє wi-fi
 	if (!WifiConnect() && !MqttConnect())
 	{
 		delay(60000);

@@ -1,5 +1,5 @@
 /*
-Dto с настройками
+Dto СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё
 */
 
 #include "home_ConnectionSettings.h"

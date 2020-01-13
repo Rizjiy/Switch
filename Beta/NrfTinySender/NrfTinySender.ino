@@ -22,7 +22,7 @@ int buttonPin = 5;
 boolean rState1 = false;
 boolean btnPress = false;
 boolean lastbtnStat = false;
-bool            data[1];                                   // Создаём массив для передачи данных
+bool            data[1];                                   // вЂ”РѕР·РґР°Р„Рј РјР°СЃСЃРёРІ РґР»В¤ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
 long debugMillis = 0;
 
 
@@ -35,7 +35,7 @@ void setup() {
 	//Serial.begin(115200);
 	//Serial.println("* Sender setup *");
 
-	// Инициализация радиомодуля
+	// В»РЅРёС†РёР°Р»РёР·Р°С†РёВ¤ СЂР°РґРёРѕРјРѕРґСѓР»В¤
 	radio.begin();
 	network.begin(RF24_CHANEL, sensor_node);
 }
@@ -56,7 +56,7 @@ void ButtonWf() {
 	}
 
 	if (btnPress && !lastbtnStat) {
-		delay(30); // защита от дребезга
+		delay(30); // Р·Р°С‰РёС‚Р° РѕС‚ РґСЂРµР±РµР·РіР°
 		btnPress = digitalRead(buttonPin);
 
 		if (btnPress) {
@@ -78,7 +78,7 @@ void OnBtnPress(bool state)
 	//	power = 255;
 	data[0] = state;
 
-	//Отправляем по трубе текущее состояние
+	//СњС‚РїСЂР°РІР»В¤РµРј РїРѕ С‚СЂСѓР±Рµ С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕВ¤РЅРёРµ
 	radio.powerUp();
 	network.write(header, data, sizeof(data));
 	radio.powerDown();
