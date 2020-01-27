@@ -105,15 +105,16 @@ void MqttButton::onTopicSwitch(byte* payload, unsigned int length)
 	else {
 
 		//deserialize json
-		StaticJsonBuffer<200> jsonBuffer;
-		JsonObject& root = jsonBuffer.parseObject(payload);
+		StaticJsonDocument<200> doc;
+		DeserializationError error = deserializeJson(doc, payload);
 
-		if (!root.success()) {
-			Serial.println("parseObject() failed");
+		if (error) {
+			Serial.print(F("deserializeJson() failed: "));
+			Serial.println(error.c_str());
 			return;
 		}
 
-		const char* action = root["action"];
+		const char* action = doc["action"];
 
 		// включаем или выключаем реле в зависимоти от полученных значений данных
 		if (strcmp(action, "on") == 0)
@@ -130,7 +131,7 @@ void MqttButton::onTopicSwitch(byte* payload, unsigned int length)
 		}
 		else if (strcmp(action, "hold") == 0)
 		{
-			long duration = root["duration"]>0? root["duration"]: holdTimeout;
+			long duration = doc["duration"]>0? doc["duration"]: holdTimeout;
 			btnHold(duration);
 		}
 	}
@@ -155,15 +156,16 @@ void MqttButton::onTopicSwitchState(byte* payload, unsigned int length)
 void MqttButton::onTopicSwitchSetup(byte* payload, unsigned int length)
 {
 	//deserialize json
-	StaticJsonBuffer<200> jsonBuffer;
-	JsonObject& root = jsonBuffer.parseObject(payload);
+	StaticJsonDocument<200> doc;
+	DeserializationError error = deserializeJson(doc, payload);
 
-	if (!root.success()) {
-		Serial.println("parseObject() failed");
+	if (error) {
+		Serial.print(F("deserializeJson() failed: "));
+		Serial.println(error.c_str());
 		return;
 	}
 
-	long holdDuration = root["holdDuration"];
+	long holdDuration = doc["holdDuration"];
 	if (holdDuration > 0)
 		holdTimeout = holdDuration;
 
