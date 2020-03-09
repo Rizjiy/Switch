@@ -42,6 +42,7 @@ void setup() {
 	helper.addButton(&button1);
 
 	button2.levelTrigger = LOW;
+	button2.levelButton = HIGH;
 	helper.addButton(&button2);
 }
 
