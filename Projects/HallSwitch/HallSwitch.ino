@@ -30,15 +30,19 @@ ConnectionSettings settings(
 ConnectionHelper helper(&settings);
 
 MqttButton button1(-1, 14, "warmfloor");
+MqttButton button2(2, 12, "lamp");
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
 	helper.setup();
+
 	button1.levelTrigger = LOW;
 	helper.addButton(&button1);
 
+	button2.levelTrigger = LOW;
+	helper.addButton(&button2);
 }
 
 // the loop function runs over and over again until power down or reset
